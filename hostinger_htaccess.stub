@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Paksa HTTPS (SSL)
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Blokir akses mutlak ke file sensitif & riwayat git
+    RewriteRule ^(\.env|\.git|composer\.json|package\.json|package-lock\.json) - [F,L,NC]
+
+    # Lindungi folder private jika diekspos secara tidak sengaja
+    RewriteRule ^storage/app/private/ - [F,L,NC]
+
+    # Arahkan semua request ke index.php
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

@@ -1,0 +1,12 @@
+.env
+.env.*
+*.pem
+*.key
+credentials*
+secrets*
+.agentrouter-secret*
+auth.json
+
+# Raw API evidence may contain request IDs tied to the account.
+# Keep local for audit, but never commit.
+docs/evidence/
