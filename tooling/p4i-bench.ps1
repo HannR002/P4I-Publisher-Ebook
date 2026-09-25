@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Infrastructure runner for P4I-Bench v1 (System Benchmark)
@@ -95,7 +95,7 @@ $results = @()
 
 if ($Mode -eq 'Mock') {
     Write-Host "Loading deterministic mock fixture..." -ForegroundColor Yellow
-    $fixturePath = Join-Path 'tooling' 'fixtures' 'p4i-bench-mock-results.json'
+    $fixturePath = Join-Path 'tooling' (Join-Path 'fixtures' 'p4i-bench-mock-results.json')
     if (Test-Path $fixturePath) {
         $results = Get-Content $fixturePath -Raw | ConvertFrom-Json
     } else {
