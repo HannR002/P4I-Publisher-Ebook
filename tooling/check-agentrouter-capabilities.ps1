@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Measures the harness-style metrics against the LIVE model.
@@ -119,14 +119,32 @@ function Test-PythonCode {
     $clean = $Expression -replace '```python', '' -replace '```', ''
     $clean = $clean.Trim()
     
-    $tempFile = [IO.Path]::GetTempFileName() + ".py"
-    $script = "result = eval('$clean')`nif result == 55:`n    exit(0)`nelse:`n    exit(1)"
+    $tempDir = [IO.Path]::Combine([IO.Path]::GetTempPath(), [Guid]::NewGuid().ToString())
+    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+    $tempFile = Join-Path $tempDir "test.py"
+    
+    $script = @"
+import ast
+import sys
+
+code = '''$clean'''
+try:
+    tree = ast.parse(code, mode='eval')
+    # Safe eval: no builtins, only sum and range
+    result = eval(compile(tree, filename='', mode='eval'), {"__builtins__": None}, {"sum": sum, "range": range})
+    if result == 55:
+        sys.exit(0)
+    else:
+        sys.exit(1)
+except Exception as e:
+    sys.exit(2)
+"@
     Set-Content -Path $tempFile -Value $script -Encoding UTF8
     
     $proc = Start-Process -FilePath "python" -ArgumentList $tempFile -Wait -NoNewWindow -PassThru -ErrorAction SilentlyContinue
     $passed = ($proc -and $proc.ExitCode -eq 0)
     
-    if (Test-Path $tempFile) { Remove-Item $tempFile }
+    if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
     return $passed
 }
 
@@ -227,6 +245,8 @@ $perTask = @()
 $allRunScores = New-Object System.Collections.Generic.List[double]
 $allLatencies = New-Object System.Collections.Generic.List[double]
 $passAt1Count = 0
+$firstAttemptValidCount = 0
+$firstAttemptProviderFailures = 0
 $validCalls = 0
 $totalCalls = 0
 $authBlocked = $false
@@ -254,6 +274,14 @@ foreach ($t in $tasks) {
         [void]$transcript.AppendLine('')
 
         if ($res.Status -eq 401) { $authBlocked = $true }
+
+        if ($r -eq 1) {
+            if ($res.Status -eq 200 -and $res.Content) {
+                $firstAttemptValidCount++
+            } else {
+                $firstAttemptProviderFailures++
+            }
+        }
 
         if ($res.Status -eq 200 -and $res.Content) {
             $validCalls++
@@ -335,9 +363,16 @@ Write-Host ''
 Write-Host (" Valid calls        : {0}/{1}" -f $validCalls, $totalCalls)
 
 if ($validCalls -gt 0) {
-    # pass@1 is based on the first run of each task
-    $passAt1Rate = $passAt1Count / $tasks.Count
-    Write-Host (" pass@1 (strict)    : {0}/{1} = {2}" -f $passAt1Count, $tasks.Count, [Math]::Round($passAt1Rate, 3))
+    # pass@1 is based on the valid first runs
+    if ($firstAttemptValidCount -gt 0) {
+        $passAt1Rate = $passAt1Count / $firstAttemptValidCount
+        Write-Host (" pass@1 (strict)    : {0}/{1} = {2}" -f $passAt1Count, $firstAttemptValidCount, [Math]::Round($passAt1Rate, 3))
+    } else {
+        Write-Host " pass@1 (strict)    : N/A (No valid first attempts)"
+    }
+    
+    Write-Host (" first attempt valid tasks    : {0}" -f $firstAttemptValidCount)
+    Write-Host (" first attempt provider fails : {0}" -f $firstAttemptProviderFailures)
     
     if ($Runs -gt 1) {
         $strictOverallCount = ($scoresArr | Where-Object { $_ -eq 1.0 }).Count
@@ -367,7 +402,9 @@ $summary = [ordered]@{
     total_calls          = $totalCalls
     valid_calls          = $validCalls
     authenticated        = -not $authBlocked
-    pass_at_1_strict     = if ($validCalls -gt 0) { [Math]::Round($passAt1Rate, 4) } else { "N/A" }
+    first_attempt_valid_tasks = $firstAttemptValidCount
+    first_attempt_provider_failures = $firstAttemptProviderFailures
+    pass_at_1_strict     = if ($firstAttemptValidCount -gt 0) { [Math]::Round($passAt1Rate, 4) } else { "N/A" }
     mean_run_score       = if ($validCalls -gt 0) { [Math]::Round($meanScore, 4) } else { "N/A" }
     standard_error       = if ($validCalls -gt 0) { [Math]::Round($se, 4) } else { "N/A" }
     latency_median_ms    = if ($validCalls -gt 0) { [int](Get-Percentile -Values $latArr -P 0.5) } else { "N/A" }
