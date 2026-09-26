@@ -108,7 +108,7 @@ if ($Mode -eq 'Mock') {
         
         foreach ($t in $tasks) {
             $wtName = "$stamp-$candidate-$($t.Id)" -replace '[^a-zA-Z0-9-]', '-'
-            $wtPath = Join-Path '.bench' 'worktrees' $wtName
+            $wtPath = Join-Path (Join-Path '.bench' 'worktrees') $wtName
             
             Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
             
