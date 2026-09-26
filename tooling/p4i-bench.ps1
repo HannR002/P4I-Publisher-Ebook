@@ -112,8 +112,8 @@ if ($Mode -eq 'Mock') {
             
             Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
             
-            # Setup Worktree
-            git worktree add $wtPath HEAD 2>&1 | Out-Null
+            # Setup Worktree (use cmd to absorb stderr which causes PS NativeCommandError)
+            cmd.exe /c "git worktree add ""$wtPath"" HEAD >nul 2>&1"
             
             if (-not (Test-ContextSecurity -WorktreePath $wtPath)) {
                 Write-Host "ABORT TASK: Secret found in context for $($t.Id)." -ForegroundColor Red
@@ -163,7 +163,7 @@ if ($Mode -eq 'Mock') {
             $results += $metric
             
             # Cleanup Worktree
-            git worktree remove $wtPath --force 2>&1 | Out-Null
+            cmd.exe /c "git worktree remove ""$wtPath"" --force >nul 2>&1"
         }
     }
 }
