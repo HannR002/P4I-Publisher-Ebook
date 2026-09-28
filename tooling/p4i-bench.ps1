@@ -143,9 +143,9 @@ $TaskDefinitions = @{
             param($wt)
             $f = Join-Path $wt 'app/Http/Controllers/DrmController.php'
             $c = Get-Content $f -Raw
-            $search = "if (!`$license) {`n            abort(403, 'No active license found for this book.');`n        }"
+            $search = "abort(403, 'No active license found for this book.');"
             if ($c.Contains($search)) {
-                Set-Content $f -Value $c.Replace($search, "// if (!`$license) abort removed")
+                Set-Content $f -Value $c.Replace($search, "// FIXTURE REMOVED NULL GUARD")
                 return $true
             }
             return $false
@@ -153,13 +153,13 @@ $TaskDefinitions = @{
         VerifyFixture = {
             param($wt)
             $f = Join-Path $wt 'app/Http/Controllers/DrmController.php'
-            return (Get-Content $f -Raw).Contains("// if (!`$license) abort removed")
+            return (Get-Content $f -Raw).Contains("// FIXTURE REMOVED NULL GUARD")
         }
         DummyCandidate = {
             param($wt)
             $f = Join-Path $wt 'app/Http/Controllers/DrmController.php'
             $c = Get-Content $f -Raw
-            Set-Content $f -Value $c.Replace("// if (!`$license) abort removed", "if (!`$license) {`n            abort(403, 'No active license found for this book.');`n        }")
+            Set-Content $f -Value $c.Replace("// FIXTURE REMOVED NULL GUARD", "abort(403, 'No active license found for this book.');")
         }
         Oracle = {
             param($wt)
