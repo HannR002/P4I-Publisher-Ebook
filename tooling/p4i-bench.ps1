@@ -73,12 +73,13 @@ function Invoke-TaskTests {
     
     $passed = 0
     $failed = 0
-    if ($out -match 'Tests:\s+(\d+)\s+failed,\s+(\d+)\s+passed') {
+    $outString = $out -join "`n"
+    if ($outString -match 'Tests:\s+(\d+)\s+failed,\s+(\d+)\s+passed') {
         $failed = [int]$Matches[1]
         $passed = [int]$Matches[2]
-    } elseif ($out -match 'Tests:\s+(\d+)\s+passed') {
+    } elseif ($outString -match 'Tests:\s+(\d+)\s+passed') {
         $passed = [int]$Matches[1]
-    } elseif ($out -match 'Tests:\s+(\d+)\s+failed') {
+    } elseif ($outString -match 'Tests:\s+(\d+)\s+failed') {
         $failed = [int]$Matches[1]
     }
     
