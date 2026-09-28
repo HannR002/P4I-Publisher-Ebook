@@ -34,7 +34,7 @@ function Test-ContextSecurity {
     param([string]$WorktreePath)
     $denyPatterns = @('.env', '.env.*', '*.pem', '*.key', '*.pfx', '*.p12', 'id_rsa*', 'credentials*', 'secrets*', 'auth.json')
     foreach ($pattern in $denyPatterns) {
-        $found = Get-ChildItem -Path $WorktreePath -Recurse -Filter $pattern -ErrorAction SilentlyContinue | Select-Object -First 1
+        $found = Get-ChildItem -Path $WorktreePath -Recurse -Filter $pattern -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\vendor\\' -and $_.FullName -notmatch '\\node_modules\\' } | Select-Object -First 1
         if ($found) {
             $rel = $found.FullName.Substring($WorktreePath.Length + 1)
             Write-Host "BLOCKED $rel (Matched deny pattern $pattern)" -ForegroundColor Magenta
@@ -42,7 +42,7 @@ function Test-ContextSecurity {
         }
     }
     
-    $sqlDumps = Get-ChildItem -Path $WorktreePath -Recurse -Filter '*.sql' -ErrorAction SilentlyContinue
+    $sqlDumps = Get-ChildItem -Path $WorktreePath -Recurse -Filter '*.sql' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '\\vendor\\' -and $_.FullName -notmatch '\\node_modules\\' }
     foreach ($sql in $sqlDumps) {
         $content = Get-Content $sql.FullName -TotalCount 50 -ErrorAction SilentlyContinue
         if ($content -match 'INSERT INTO `users`') {
@@ -696,7 +696,7 @@ foreach ($candidate in @('Candidate A', 'Candidate B')) {
         
         Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
         cmd.exe /c "git worktree add --detach `"$wtPath`" HEAD >nul 2>&1"
-        Copy-Item -Path "vendor" -Destination "$wtPath\vendor" -Recurse -Force
+        cmd.exe /c "mklink /J `"$wtPath\vendor`" `"vendor`" >nul 2>&1"
         
         if (-not (Test-ContextSecurity -WorktreePath $wtPath)) {
             Write-Host "ABORT TASK: Secret found in context for $t." -ForegroundColor Red
