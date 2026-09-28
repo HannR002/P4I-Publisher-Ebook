@@ -211,9 +211,10 @@ $TaskDefinitions = @{
             $f = Join-Path $wt 'app/Models/User.php'
             $c = Get-Content $f -Raw
             # Replace fillable array with $guarded = []
-            $search = "    protected `$fillable = [`n        'name',`n        'email',`n        'password',`n        'is_admin',`n        'is_active',`n    ];"
+            $search = "protected `$fillable = ["
             if ($c.Contains($search)) {
-                Set-Content $f -Value $c.Replace($search, "    protected `$guarded = [];")
+                $newC = $c -replace 'protected\s+\$fillable\s*=\s*\[[^\]]+\];', 'protected $guarded = [];'
+                Set-Content $f -Value $newC
                 return $true
             }
             return $false
@@ -226,8 +227,10 @@ $TaskDefinitions = @{
         DummyCandidate = {
             param($wt)
             $f = Join-Path $wt 'app/Models/User.php'
-            $c = Get-Content $f -Raw
-            Set-Content $f -Value $c.Replace("    protected `$guarded = [];", "    protected `$fillable = ['name', 'email', 'password'];")
+            $search = "protected `$guarded = \[\];"
+            $replace = "protected `$fillable = ['name', 'email', 'password'];"
+            $newC = $c -replace $search, $replace
+            Set-Content $f -Value $newC
         }
         Oracle = {
             param($wt)
@@ -344,7 +347,7 @@ foreach ($candidate in @('Candidate A', 'Candidate B')) {
         $wtPath = Join-Path (Join-Path '.bench' 'worktrees') $wtName
         
         Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
-        cmd.exe /c "git worktree add ""$wtPath"" HEAD >nul 2>&1"
+        cmd.exe /c "git worktree add --detach ""$wtPath"" HEAD >nul 2>&1"
         
         if (-not (Test-ContextSecurity -WorktreePath $wtPath)) {
             Write-Host "ABORT TASK: Secret found in context for $t." -ForegroundColor Red
