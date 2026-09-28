@@ -1,7 +1,7 @@
-# P4I-Bench v1 Readiness Status
+# P4I-Bench v1.2 Readiness Status
 
-**Date:** 26 September 2026
-**Status:** `READY_FOR_CONTROLLED_PILOT`
+**Date:** 28 September 2026
+**Status:** `NOT_READY`
 
 ---
 
@@ -9,25 +9,25 @@
 
 | Gate | Status | Notes |
 |------|--------|-------|
-| 15 tasks verified | [x] PASS | All 15 tasks mapped to actual repository paths (`docs/P4I_BENCH_TASK_MANIFEST.md`). |
-| worktree isolation works | [x] PASS | `p4i-bench.ps1` successfully provisions and tears down `.bench/worktrees/` |
-| production tree untouched | [x] PASS | Script tests `git status --porcelain` before and after execution to ensure safety. |
-| deterministic mock | [x] PASS | `-Mode Mock` bypassed runtime randomization, instead using fixed fixture data (`tooling/fixtures/p4i-bench-mock-results.json`). |
-| no eval arbitrary code | [x] PASS | `tooling/check-agentrouter-capabilities.ps1` now uses `ast.parse` and explicitly denied builtin variables (`__builtins__: None`) in a temp dir. |
-| secret deny-list tested | [x] PASS | `Test-ContextSecurity` explicitly rejects `.env`, `*.pem`, `credentials*`, etc. |
-| candidate blinding works | [x] PASS | Output metrics are mapped to Candidate A/B. Real mapping is inside `docs/evidence/p4i-bench/private/candidate-map.json` which is `.gitignore`'d. |
-| pass@1 denominator fixed | [x] PASS | `check-agentrouter-capabilities.ps1` updated to only use valid 1st attempts as denominator. |
-| cleanup tested | [x] PASS | Worktree forces teardown and cleans up temp scripts on completion/abort. |
-| Live requires ConfirmLive | [x] PASS | Script throws `ABORT` and exits `1` if `-Mode Live` is run without `-ConfirmLive`. |
-| no API request occurred during validation | [x] PASS | Validated. All runs were in Mock or Validate mode; no billable quota consumed. |
+| 15 task manifests valid | [x] PASS | All 15 tasks mapped to actual repository paths. |
+| 15 fixtures apply + verify | [ ] FAIL | Only `bug-01` implemented in `Invoke-TaskSetup`. Other 14 pending. |
+| 15 task oracles valid | [ ] FAIL | Only `bug-01` implemented in `Invoke-TaskOracle`. Other 14 pending. |
+| 30-row deterministic mock passes | [x] PASS | Deterministic fixture for 30 rows generated and loaded. |
+| worktree lifecycle passes | [x] PASS | Verified via `git worktree add/remove`. |
+| production tree unchanged | [x] PASS | Script tests `git status --porcelain`. |
+| baseline commit secret audit clean | [x] PASS | Removed `vendor` and `node_modules` from tracked files. No keys found. |
+| recursive secret gate tested | [x] PASS | `Test-ContextSecurity` updated to recursively scan patterns and SQL signatures. |
+| arbitrary eval removed | [x] PASS | Removed python coding execution entirely from the micro-harness. |
+| subprocess timeout tested | [ ] FAIL | Not applicable since Python execution task was removed. Need to clarify timeout target. |
+| live executor implemented | [x] PASS | Abstractions added: `Invoke-Candidate`, `Collect-TaskMetrics`, etc. |
+| no metrics hard-coded in Live | [x] PASS | Metrics returned dynamically from Oracle results. |
+| candidate blinding freshly generated | [x] PASS | Random mapping created for pilot in ignored file, dummy map for Validate mode. |
+| Live still requires -ConfirmLive | [x] PASS | Guard logic remains active. |
+| validation consumed zero API calls | [x] PASS | Only Validate mode running. |
 
 ---
 
 ## 2. Next Steps
 
-The infrastructure is verified safe and reproducible.
-
-### Proceed to Controlled Pilot
-We recommend executing a 1x2x1 pilot (1 task, 2 candidates, 1 run) to test the end-to-end pipeline before running all 15 tasks.
-
-**Do NOT run the full benchmark yet.**
+Status remains **NOT_READY**.
+The implementation of the remaining 14 fixtures and oracles is required before this can proceed to Pilot.

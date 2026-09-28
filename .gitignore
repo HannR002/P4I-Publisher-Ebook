@@ -11,3 +11,5 @@ auth.json
 # Keep local for audit, but never commit.
 docs/evidence/
 docs/evidence/p4i-bench/private/
+node_modules/
+vendor/

@@ -77,13 +77,7 @@ $tasks = @(
         Strict   = '^\s*\{\s*"status"\s*:\s*"ok"\s*,\s*"count"\s*:\s*3\s*\}\s*$'
         Partial  = @('"status"', '"count"')
     },
-    @{
-        Id       = 'code-correct'
-        Category = 'Code'
-        Type     = 'Python'
-        Prompt   = 'In Python, write a single expression that returns the sum of squares of 1..5. Output only the expression.'
-        # We will sandbox test this if Python is available.
-    },
+
     @{
         Id       = 'retrieval-inline'
         Category = 'Context-use'
@@ -114,39 +108,7 @@ function Get-StdDev {
     return [Math]::Sqrt($sumSq / ($Values.Count - 1))
 }
 
-function Test-PythonCode {
-    param([string]$Expression)
-    $clean = $Expression -replace '```python', '' -replace '```', ''
-    $clean = $clean.Trim()
-    
-    $tempDir = [IO.Path]::Combine([IO.Path]::GetTempPath(), [Guid]::NewGuid().ToString())
-    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    $tempFile = Join-Path $tempDir "test.py"
-    
-    $script = @"
-import ast
-import sys
 
-code = '''$clean'''
-try:
-    tree = ast.parse(code, mode='eval')
-    # Safe eval: no builtins, only sum and range
-    result = eval(compile(tree, filename='', mode='eval'), {"__builtins__": None}, {"sum": sum, "range": range})
-    if result == 55:
-        sys.exit(0)
-    else:
-        sys.exit(1)
-except Exception as e:
-    sys.exit(2)
-"@
-    Set-Content -Path $tempFile -Value $script -Encoding UTF8
-    
-    $proc = Start-Process -FilePath "python" -ArgumentList $tempFile -Wait -NoNewWindow -PassThru -ErrorAction SilentlyContinue
-    $passed = ($proc -and $proc.ExitCode -eq 0)
-    
-    if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
-    return $passed
-}
 
 function Invoke-ModelCall {
     param([string]$ModelId, [string]$PromptText, [int]$TokenCap)
@@ -297,15 +259,6 @@ foreach ($t in $tasks) {
                         if ($text -notmatch [regex]::Escape($token)) { $hit = $false; break }
                     }
                     if ($hit) { $score = 0.5 }
-                }
-            } elseif ($t.Type -eq 'Python') {
-                if (Get-Command python -ErrorAction SilentlyContinue) {
-                    if (Test-PythonCode -Expression $text) {
-                        $score = 1.0
-                    }
-                } else {
-                    Write-Host "Python not found. Skipping code execution." -ForegroundColor Yellow
-                    $score = 0.0
                 }
             }
 
