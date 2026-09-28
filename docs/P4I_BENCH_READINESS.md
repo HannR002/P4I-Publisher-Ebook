@@ -10,8 +10,8 @@
 | Gate | Status | Notes |
 |------|--------|-------|
 | 15 task manifests valid | [x] PASS | All 15 tasks mapped to actual repository paths. |
-| 15 fixtures apply + verify | [ ] FAIL | Only `bug-01` implemented in `Invoke-TaskSetup`. Other 14 pending. |
-| 15 task oracles valid | [ ] FAIL | Only `bug-01` implemented in `Invoke-TaskOracle`. Other 14 pending. |
+| 15 fixtures apply + verify | [-] PARTIAL (5/15) | `bug-01`, `bug-02`, `bug-03`, `sec-01`, `sec-02` implemented. 10 pending. |
+| 15 task oracles valid | [-] PARTIAL (5/15) | `bug-01`, `bug-02`, `bug-03`, `sec-01`, `sec-02` implemented. 10 pending. |
 | 30-row deterministic mock passes | [x] PASS | Deterministic fixture for 30 rows generated and loaded. |
 | worktree lifecycle passes | [x] PASS | Verified via `git worktree add/remove`. |
 | production tree unchanged | [x] PASS | Script tests `git status --porcelain`. |
@@ -30,4 +30,4 @@
 ## 2. Next Steps
 
 Status remains **NOT_READY**.
-The implementation of the remaining 14 fixtures and oracles is required before this can proceed to Pilot.
+The implementation of the remaining 10 fixtures and oracles is required before this can proceed to Pilot.
