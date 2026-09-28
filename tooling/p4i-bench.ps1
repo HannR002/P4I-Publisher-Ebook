@@ -681,7 +681,7 @@ foreach ($candidate in @('Candidate A', 'Candidate B')) {
         
         Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
         cmd.exe /c "git worktree add --detach `"$wtPath`" HEAD >nul 2>&1"
-        cmd.exe /c "mklink /J `"$PWD\$wtPath\vendor`" `"$PWD\vendor`" >nul 2>&1"
+        cmd.exe /c "xcopy /E /I /H /Q `"$PWD\vendor`" `"$PWD\$wtPath\vendor`" >nul 2>&1"
         
         if (-not (Test-ContextSecurity -WorktreePath $wtPath)) {
             Write-Host "ABORT TASK: Secret found in context for $t." -ForegroundColor Red
