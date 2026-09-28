@@ -13,3 +13,5 @@ docs/evidence/
 docs/evidence/p4i-bench/private/
 node_modules/
 vendor/
+.bench/
+
