@@ -22,7 +22,7 @@ if ($Mode -eq 'Live' -and -not $ConfirmLive) {
 }
 
 function Get-CandidateMapping {
-    $mapFile = Join-Path $EvidenceRoot 'private' 'candidate-map.json'
+    $mapFile = Join-Path (Join-Path $EvidenceRoot 'private') 'candidate-map.json'
     if ($Mode -eq 'Live' -or $Mode -eq 'Validate') {
         $models = @('Gemini 3.1 Pro (via Antigravity)', 'deepseek-v4-flash (via AgentRouter)') | Sort-Object { Get-Random }
         $map = [ordered]@{ "Candidate A" = $models[0]; "Candidate B" = $models[1] }
