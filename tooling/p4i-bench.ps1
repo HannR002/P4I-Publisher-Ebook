@@ -159,7 +159,7 @@ class Bug01Test extends TestCase {
             $c = Get-Content $f -Raw
             $search = "BookLicense::with('book')"
             if ($c.Contains($search)) {
-                Set-Content $f -Value $c.Replace($search, "BookLicense::query()")
+                Set-Content $f -Value $c.Replace($search, "BookLicense::query() // MOCKED FOR BENCHMARK")
                 
                 Build-BenchmarkTest $wt 'Bug02Test' '<?php
 namespace Tests\Feature\Benchmark;
@@ -328,7 +328,7 @@ class Sec02Test extends TestCase {
             param($wt)
             $f = Join-Path $wt 'app/Models/User.php'
             $c = Get-Content $f -Raw
-            $search = "protected `$guarded = \[\];"
+            $search = 'protected \$guarded = \[\];'
             $replace = "protected `$fillable = ['name', 'email', 'password', 'is_admin', 'is_active'];"
             $newC = $c -replace $search, $replace
             Set-Content $f -Value $newC
@@ -354,13 +354,19 @@ class Sec02Test extends TestCase {
 namespace Tests\Feature\Benchmark;
 use Tests\TestCase;
 use App\Models\Book;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 class Feat01Test extends TestCase {
     use RefreshDatabase;
     public function test_published_at_exists() {
         $this->assertTrue(Schema::hasColumn("books", "published_at"), "Column published_at does not exist");
-        $book = Book::factory()->create(["published_at" => now()]);
+        $user = User::factory()->create();
+        $book = Book::create([
+            "title" => "t", "description" => "d", "price" => 0, 
+            "user_id" => $user->id, "file_path" => "x", "cover_image" => "x", 
+            "status" => "approved", "published_at" => now()
+        ]);
         $this->assertNotNull($book->published_at);
     }
 }
@@ -403,11 +409,22 @@ return new class extends Migration {
 namespace Tests\Feature\Benchmark;
 use Tests\TestCase;
 use App\Models\Review;
+use App\Models\Book;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 class Feat02Test extends TestCase {
     use RefreshDatabase;
     public function test_soft_deletes() {
-        $review = Review::factory()->create();
+        $user = User::factory()->create();
+        $book = Book::create([
+            "title" => "t", "description" => "d", "price" => 0, 
+            "user_id" => $user->id, "file_path" => "x", "cover_image" => "x", 
+            "status" => "approved"
+        ]);
+        $review = Review::create([
+            "user_id" => $user->id, "book_id" => $book->id, 
+            "rating" => 5, "comment" => "Great"
+        ]);
         $review->delete();
         $this->assertNotNull($review->deleted_at);
         $this->assertEquals(0, Review::count());
@@ -681,7 +698,19 @@ foreach ($candidate in @('Candidate A', 'Candidate B')) {
         
         Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
         cmd.exe /c "git worktree add --detach `"$wtPath`" HEAD >nul 2>&1"
-        cmd.exe /c "xcopy /E /I /H /Q `"$PWD\vendor`" `"$PWD\$wtPath\vendor`" >nul 2>&1"
+        cmd.exe /c "mklink /J `"$PWD\$wtPath\vendor`" `"$PWD\vendor`" >nul 2>&1"
+        if (Test-Path "$PWD\.env.testing") { Copy-Item "$PWD\.env.testing" -Destination "$PWD\$wtPath\.env" -Force }
+        if (Test-Path "$PWD\.env.testing") { Copy-Item "$PWD\.env.testing" -Destination "$PWD\$wtPath\.env.testing" -Force }
+        
+        $bootstrapContent = "<?php`n`$loader = require __DIR__.'/../vendor/autoload.php';`n`$loader->setPsr4('App\\', __DIR__.'/../app/', true);`n`$loader->setPsr4('Database\\Factories\\', __DIR__.'/../database/factories/', true);`n`$loader->setPsr4('Database\\Seeders\\', __DIR__.'/../database/seeders/', true);`n`$loader->setPsr4('Tests\\', __DIR__.'/../tests/', true);`nreturn `$loader;"
+        Set-Content (Join-Path "$PWD\$wtPath" "bootstrap/testing_autoload.php") -Value $bootstrapContent
+        
+        $phpunitPath = Join-Path "$PWD\$wtPath" "phpunit.xml"
+        if (Test-Path $phpunitPath) {
+            $xml = Get-Content $phpunitPath -Raw
+            $xml = $xml.Replace('bootstrap="vendor/autoload.php"', 'bootstrap="bootstrap/testing_autoload.php"')
+            Set-Content $phpunitPath -Value $xml
+        }
         
         if (-not (Test-ContextSecurity -WorktreePath $wtPath)) {
             Write-Host "ABORT TASK: Secret found in context for $t." -ForegroundColor Red
