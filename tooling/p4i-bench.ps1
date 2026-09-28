@@ -699,8 +699,6 @@ foreach ($candidate in @('Candidate A', 'Candidate B')) {
         Write-Host "  -> Setting up worktree: $wtPath" -ForegroundColor DarkGray
         cmd.exe /c "git worktree add --detach `"$wtPath`" HEAD >nul 2>&1"
         cmd.exe /c "mklink /J `"$PWD\$wtPath\vendor`" `"$PWD\vendor`" >nul 2>&1"
-        if (Test-Path "$PWD\.env.testing") { Copy-Item "$PWD\.env.testing" -Destination "$PWD\$wtPath\.env" -Force }
-        if (Test-Path "$PWD\.env.testing") { Copy-Item "$PWD\.env.testing" -Destination "$PWD\$wtPath\.env.testing" -Force }
         
         $bootstrapContent = "<?php`n`$loader = require __DIR__.'/../vendor/autoload.php';`n`$loader->setPsr4('App\\', __DIR__.'/../app/', true);`n`$loader->setPsr4('Database\\Factories\\', __DIR__.'/../database/factories/', true);`n`$loader->setPsr4('Database\\Seeders\\', __DIR__.'/../database/seeders/', true);`n`$loader->setPsr4('Tests\\', __DIR__.'/../tests/', true);`nreturn `$loader;"
         Set-Content (Join-Path "$PWD\$wtPath" "bootstrap/testing_autoload.php") -Value $bootstrapContent
