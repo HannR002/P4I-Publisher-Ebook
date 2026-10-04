@@ -49,9 +49,9 @@
                 {{ __('MASUK SEKARANG') }}
             </button>
         </div>
-        
+
         <div class="mt-8 text-center text-sm text-gray-500">
-            Belum punya akun? 
+            Belum punya akun?
             <a href="{{ route('register') }}" class="font-extrabold text-blue-600 hover:text-blue-500 transition-colors">
                 Daftar Gratis
             </a>

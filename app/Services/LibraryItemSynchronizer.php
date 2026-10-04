@@ -42,4 +42,14 @@ class LibraryItemSynchronizer
 
         return $item;
     }
+
+    public function remove(Book $book): void
+    {
+        if ($book->library_item_id) {
+            $item = LibraryItem::find($book->library_item_id);
+            if ($item && $item->source_type === 'legacy_book') {
+                $item->update(['status' => 'archived']);
+            }
+        }
+    }
 }

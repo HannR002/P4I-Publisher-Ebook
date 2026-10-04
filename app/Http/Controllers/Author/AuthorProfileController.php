@@ -24,9 +24,9 @@ class AuthorProfileController extends Controller
             'user_id' => Auth::id(),
             'pen_name' => $request->pen_name,
             'bio' => $request->bio,
-            // Legacy column is NOT NULL; an empty encrypted value preserves the
-            // old schema without requiring or collecting a KTP number.
-            'id_card_number' => config('features.author_kyc') ? $request->id_card_number : '',
+            // Legacy column is now nullable; a true null value preserves the
+            // new schema without requiring or collecting a KTP number.
+            'id_card_number' => config('features.author_kyc') ? $request->id_card_number : null,
             'id_card_path' => $idCardPath,
             'bank_name' => $request->bank_name,
             'bank_account' => $request->bank_account,

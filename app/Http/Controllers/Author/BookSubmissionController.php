@@ -75,7 +75,15 @@ class BookSubmissionController extends Controller
         $data = $request->only(['category_id', 'title', 'synopsis', 'proposed_price']);
 
         if ($request->hasFile('manuscript_file')) {
-            Storage::disk('local')->delete($submission->manuscript_path);
+            if ($submission->status === 'revision_requested') {
+                \App\Models\SubmissionRevision::create([
+                    'submission_id' => $submission->id,
+                    'manuscript_path' => $submission->manuscript_path,
+                    'revision_note' => $request->input('revision_note'),
+                ]);
+            } else {
+                Storage::disk('local')->delete($submission->manuscript_path);
+            }
             $data['manuscript_path'] = $request->file('manuscript_file')->store('private/submissions', 'local');
         }
 

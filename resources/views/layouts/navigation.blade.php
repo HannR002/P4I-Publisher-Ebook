@@ -15,7 +15,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    
+
                     @if(Auth::check() && Auth::user()->is_admin)
                         <x-nav-link :href="route('admin.library.index')" :active="request()->routeIs('admin.library.*')">
                             {{ __('Perpustakaan') }}

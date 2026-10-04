@@ -82,7 +82,7 @@ class FeatureFlagsRescopeTest extends TestCase
 
         $this->actingAs($user)->post('/author/register', ['pen_name' => 'Tanpa KYC', 'bio' => 'Bio'])
             ->assertRedirect(route('author.dashboard'));
-        $this->assertDatabaseHas('authors', ['user_id' => $user->id, 'pen_name' => 'Tanpa KYC', 'kyc_status' => 'unverified']);
+        $this->assertDatabaseHas('authors', ['user_id' => $user->id, 'pen_name' => 'Tanpa KYC', 'kyc_status' => 'unverified', 'id_card_number' => null]);
         $user->refresh()->unsetRelation('authorProfile');
 
         $category = Category::create(['name' => 'Teknologi', 'slug' => 'teknologi']);

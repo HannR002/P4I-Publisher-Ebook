@@ -10,7 +10,8 @@ An imported record maps to `LibraryItem` with:
 
 - `source_type=ojs`;
 - `source_url` as the canonical OJS landing page;
-- type `journal` or `journal_article`;
+- type `journal`, `journal_issue`, or `journal_article`;
+- hierarchical links using `parent_id` (e.g. article belongs to issue, issue belongs to journal);
 - DOI, ISSN, title, abstract, publisher/journal, publication date/year, language;
 - ordered creators and roles;
 - categories/keywords mapped through an explicit vocabulary;

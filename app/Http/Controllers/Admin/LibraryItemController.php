@@ -12,11 +12,19 @@ class LibraryItemController extends Controller
 {
     public function index(Request $request)
     {
-        $items = LibraryItem::with('creators')->when($request->type, fn ($q, $type) => $q->where('type', $type))->latest()->paginate(20)->withQueryString();
+        $items = LibraryItem::with('creators')
+            ->when($request->type, fn ($q, $type) => $q->where('type', $type))
+            ->when($request->status, fn ($q, $status) => $q->where('status', $status))
+            ->when($request->search, fn ($q, $search) => $q->search($search))
+            ->when($request->missing === 'cover', fn ($q) => $q->whereNull('cover_path'))
+            ->when($request->missing === 'file', fn ($q) => $q->whereIn('source_type', ['pdf', 'epub'])->whereNull('source_url'))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
         return view('admin.library.index', compact('items'));
     }
 
-    public function create() { return view('admin.library.form', ['item' => new LibraryItem(), 'categories' => Category::orderBy('name')->get()]); }
+    public function create() { return view('admin.library.form', ['item' => new LibraryItem(), 'categories' => Category::orderBy('name')->get(), 'parents' => LibraryItem::whereIn('type', ['journal', 'journal_issue', 'book'])->get()]); }
 
     public function store(Request $request)
     {
@@ -25,7 +33,12 @@ class LibraryItemController extends Controller
         return redirect()->route('admin.library.index')->with('success', 'Koleksi berhasil ditambahkan.');
     }
 
-    public function edit(LibraryItem $libraryItem) { return view('admin.library.form', ['item' => $libraryItem->load(['creators', 'categories', 'files']), 'categories' => Category::orderBy('name')->get()]); }
+    public function edit(LibraryItem $libraryItem) {
+        if ($libraryItem->source_type === 'legacy_book' && $libraryItem->legacyBook) {
+            return redirect()->route('admin.books.index')->with('info', 'Koleksi ini dikelola melalui data Buku.');
+        }
+        return view('admin.library.form', ['item' => $libraryItem->load(['creators', 'categories', 'files']), 'categories' => Category::orderBy('name')->get(), 'parents' => LibraryItem::whereIn('type', ['journal', 'journal_issue', 'book'])->where('id', '!=', $libraryItem->id)->get()]);
+    }
 
     public function update(Request $request, LibraryItem $libraryItem)
     {
@@ -39,6 +52,7 @@ class LibraryItemController extends Controller
     {
         return $request->validate([
             'type' => ['required', Rule::in(config('library.types'))], 'title' => ['required', 'max:255'],
+            'parent_id' => ['nullable', 'exists:library_items,id'],
             'slug' => ['nullable', 'max:255', Rule::unique('library_items')->ignore($item?->id)],
             'description' => ['nullable', 'string'], 'synopsis' => ['nullable', 'string'], 'abstract' => ['nullable', 'string'],
             'featured_excerpt' => ['nullable', 'string', 'max:2000'], 'excerpt_source' => ['nullable', 'max:255'], 'excerpt_page' => ['nullable', 'max:50'],
@@ -57,7 +71,7 @@ class LibraryItemController extends Controller
     private function syncRelations(Request $request, LibraryItem $item): void
     {
         $item->categories()->sync($request->input('category_ids', []));
-        $names = collect(explode(',', (string) $request->input('creators')))->map->trim()->filter()->values();
+        $names = collect(explode(',', (string) $request->input('creators')))->map(fn($v) => trim($v))->filter()->values();
         $item->creators()->delete();
         foreach ($names as $position => $name) $item->creators()->create(['name' => $name, 'role' => 'author', 'sort_order' => $position]);
 

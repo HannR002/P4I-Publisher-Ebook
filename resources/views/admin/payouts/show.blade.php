@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
+
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">Detail Penarikan Dana</h2>
@@ -32,7 +32,7 @@
                 <div class="md:col-span-2 space-y-6">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Informasi Pembayaran</h3>
-                        
+
                         <div class="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                             <div>
                                 <span class="text-gray-500 block mb-1">Penulis:</span>
@@ -82,7 +82,7 @@
                     <!-- Buku Besar Terkait -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Rincian Buku Besar (Ledger) Pendapatan</h3>
-                        
+
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -121,7 +121,7 @@
                     @if(in_array($payout->status, ['requested', 'processing']))
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Aksi Verifikasi</h3>
-                            
+
                             <form action="{{ route('admin.payouts.complete', $payout) }}" method="POST" enctype="multipart/form-data" class="space-y-4 mb-6" onsubmit="return confirm('Selesaikan penarikan dana ini?')">
                                 @csrf
                                 <div>
@@ -158,11 +158,11 @@
                             <div class="space-y-2 text-sm text-gray-600">
                                 <p><span class="font-medium text-gray-900">Diproses Oleh:</span> {{ $payout->processor->name }}</p>
                                 <p><span class="font-medium text-gray-900">Tanggal:</span> {{ $payout->processed_at->format('d/m/Y H:i') }}</p>
-                                
+
                                 @if($payout->reference_number)
                                     <p><span class="font-medium text-gray-900">No. Ref:</span> {{ $payout->reference_number }}</p>
                                 @endif
-                                
+
                                 @if($payout->admin_notes)
                                     <div class="mt-2 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded text-xs">
                                         <strong>Catatan Penolakan:</strong><br>

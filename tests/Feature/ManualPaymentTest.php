@@ -73,6 +73,63 @@ class ManualPaymentTest extends TestCase
         $this->assertDatabaseMissing('library_access_grants', ['user_id' => $user->id, 'library_item_id' => $item->id]);
     }
 
+    public function test_rejected_payment_can_be_resubmitted(): void
+    {
+        Storage::fake('local');
+        $user = User::factory()->create();
+        $method = PaymentMethod::create(['type' => 'bank', 'name' => 'BCA', 'is_active' => true]);
+        $order = $this->order($user, null, 'rejected');
+
+        $this->actingAs($user)->post(route('manual-orders.proof', $order), [
+            'payment_method_id' => $method->id, 'amount' => 50000,
+            'proof' => UploadedFile::fake()->image('proof.jpg'),
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('manual_orders', ['id' => $order->id, 'status' => 'payment_submitted']);
+    }
+
+    public function test_duplicate_verified_request_is_idempotent(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $user = User::factory()->create();
+        $item = $this->item();
+        $method = PaymentMethod::create(['type' => 'bank', 'name' => 'Mandiri', 'is_active' => true]);
+        $order = $this->order($user, $item, 'payment_submitted');
+        $submission = PaymentSubmission::create(['manual_order_id' => $order->id, 'payment_method_id' => $method->id, 'amount' => 50000, 'proof_path' => 'payment-proofs/a.jpg', 'status' => 'submitted', 'submitted_at' => now()]);
+
+        $this->actingAs($admin)->post(route('admin.payments.verify', $submission));
+        // Verify again
+        $this->actingAs($admin)->post(route('admin.payments.verify', $submission))->assertSessionHas('success', 'Pembayaran sudah pernah diverifikasi.');
+
+        $this->assertDatabaseCount('library_access_grants', 1); // No duplicates
+    }
+
+    public function test_verified_payment_cannot_be_rejected(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $user = User::factory()->create();
+        $item = $this->item();
+        $method = PaymentMethod::create(['type' => 'bank', 'name' => 'Mandiri', 'is_active' => true]);
+        $order = $this->order($user, $item, 'verified');
+        $submission = PaymentSubmission::create(['manual_order_id' => $order->id, 'payment_method_id' => $method->id, 'amount' => 50000, 'proof_path' => 'a.jpg', 'status' => 'verified', 'submitted_at' => now(), 'verified_at' => now()]);
+
+        $this->actingAs($admin)->post(route('admin.payments.reject', $submission), ['rejection_reason' => 'Testing'])
+             ->assertStatus(409); // Should abort because status is not submitted
+    }
+
+    public function test_rejected_payment_cannot_be_verified(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $user = User::factory()->create();
+        $item = $this->item();
+        $method = PaymentMethod::create(['type' => 'bank', 'name' => 'Mandiri', 'is_active' => true]);
+        $order = $this->order($user, $item, 'rejected');
+        $submission = PaymentSubmission::create(['manual_order_id' => $order->id, 'payment_method_id' => $method->id, 'amount' => 50000, 'proof_path' => 'a.jpg', 'status' => 'rejected', 'submitted_at' => now(), 'rejection_reason' => 'Testing']);
+
+        $this->actingAs($admin)->post(route('admin.payments.verify', $submission))
+             ->assertStatus(409);
+    }
+
     private function item(): LibraryItem
     {
         return LibraryItem::create(['type' => 'book', 'title' => 'Buku Manual', 'source_type' => 'local', 'access_policy' => 'manual_purchase', 'price' => 50000, 'status' => 'published', 'published_at' => now()]);

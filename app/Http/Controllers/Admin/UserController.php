@@ -37,7 +37,9 @@ class UserController extends Controller
             if ($request->role === 'admin') {
                 $query->where('is_admin', true);
             } elseif ($request->role === 'customer') {
-                $query->where('is_admin', false);
+                $query->where('is_admin', false)->where('is_author', false);
+            } elseif ($request->role === 'author') {
+                $query->where('is_author', true);
             }
         }
 

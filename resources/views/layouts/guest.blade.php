@@ -13,14 +13,16 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Theme Initialization (Prevents FOUC) -->
+        <x-theme-init />
     </head>
-    <body class="font-sans text-gray-900 antialiased bg-gray-50 min-h-screen p-4 md:p-6 lg:p-8" style="font-family: 'Inter', sans-serif;">
-        
+    <body class="font-sans text-text-primary antialiased bg-background transition-colors duration-300 min-h-screen p-4 md:p-6 lg:p-8">
+
         <!-- Global Asymmetric Bento Grid Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-4rem)]">
-            
+
             <!-- LEFT: Authentication Form (40%) -->
-            <div class="lg:col-span-5 flex flex-col justify-center bg-white border border-gray-100 rounded-[2rem] p-8 lg:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+            <div class="lg:col-span-5 flex flex-col justify-center bg-surface border border-border rounded-[2rem] p-8 lg:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
                 <!-- Branding / Logo -->
                 <div class="absolute top-8 left-8">
                     <a href="/" class="flex items-center gap-2">
@@ -28,11 +30,11 @@
                         <span class="font-extrabold text-xl tracking-wider text-gray-900">P4I<span class="text-blue-600"> E-Book</span></span>
                     </a>
                 </div>
-                
+
                 <div class="w-full max-w-md mx-auto mt-12 z-10 relative">
                     {{ $slot }}
                 </div>
-                
+
                 <!-- Subtle geometric decoration -->
                 <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
             </div>
@@ -43,12 +45,12 @@
                 <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-10 animate-blob"></div>
                 <div class="absolute top-[20%] right-[-10%] w-[60%] h-[60%] bg-emerald-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-10 animate-blob animation-delay-2000"></div>
                 <div class="absolute bottom-[-20%] left-[20%] w-[70%] h-[70%] bg-blue-300 rounded-full mix-blend-multiply filter blur-[120px] opacity-10 animate-blob animation-delay-4000"></div>
-                
+
                 <!-- Frosted Glass Content Box -->
                 <div class="absolute inset-x-8 bottom-8 top-auto p-8 rounded-3xl bg-white/40 backdrop-blur-xl border border-white/60 shadow-xl">
                     <div class="flex flex-col gap-4">
                         <div class="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest w-max border border-blue-100">
-                            ✨ Katalog E-Book Premium
+                            ✨ Katalog Publikasi Digital
                         </div>
                         <h2 class="text-3xl font-extrabold text-gray-900 leading-tight">
                             "Membaca adalah melawan, menulis adalah mencipta."
@@ -56,7 +58,7 @@
                         <p class="text-gray-600 text-sm mt-2 font-medium max-w-xl leading-relaxed">
                             Jelajahi ribuan koleksi literatur terbaik, dukung penulis lokal, dan nikmati bacaan digital dengan teknologi perlindungan DRM kelas dunia.
                         </p>
-                        
+
                         <!-- Simulated Bento Bookshelf / Carousel blocks -->
                         <div class="grid grid-cols-3 gap-4 mt-6">
                             <div class="h-32 rounded-2xl bg-gradient-to-t from-gray-900/80 to-transparent border border-white/20 flex items-end p-4 relative overflow-hidden group cursor-pointer shadow-md transition-transform hover:-translate-y-1">
@@ -75,9 +77,9 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
-        
+
         <style>
             @keyframes blob {
                 0% { transform: translate(0px, 0px) scale(1); }

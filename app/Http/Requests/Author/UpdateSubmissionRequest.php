@@ -32,6 +32,7 @@ class UpdateSubmissionRequest extends FormRequest
             'proposed_price' => ['required', 'numeric', 'min:0', 'max:10000000'],
             'manuscript_file' => ['nullable', 'file', 'mimes:pdf', 'max:51200'],
             'cover_preview' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'revision_note' => ['nullable', 'string', 'max:1000'],
         ];
     }
 

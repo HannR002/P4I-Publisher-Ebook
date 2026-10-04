@@ -73,8 +73,35 @@ class LibraryCatalogTest extends TestCase
     {
         $book = \App\Models\Book::create(['title' => 'Warisan Lama', 'author' => 'P4I', 'price' => 0, 'file_path' => 'legacy.pdf', 'is_published' => true]);
         $this->assertNotNull($book->fresh()->library_item_id);
-        $this->assertDatabaseHas('library_items', ['title' => 'Warisan Lama', 'source_type' => 'legacy_book']);
+        $this->assertDatabaseHas('library_items', ['title' => 'Warisan Lama', 'source_type' => 'legacy_book', 'status' => 'published']);
         $this->get(route('books.show', $book->slug))->assertRedirect(route('library.show', $book->fresh()->libraryItem));
+    }
+
+    public function test_legacy_book_deletion_archives_library_item(): void
+    {
+        $book = \App\Models\Book::create(['title' => 'Warisan Lama 2', 'author' => 'P4I', 'price' => 0, 'file_path' => 'legacy2.pdf', 'is_published' => true]);
+        $libraryItemId = $book->fresh()->library_item_id;
+
+        $book->delete();
+
+        $this->assertDatabaseMissing('books', ['id' => $book->id]);
+        $this->assertDatabaseHas('library_items', [
+            'id' => $libraryItemId,
+            'status' => 'archived'
+        ]);
+    }
+
+    public function test_unsafe_external_url_schemes_are_rejected(): void
+    {
+        $unsafeItem = $this->item('Unsafe URL', 'external', ['source_type' => 'ojs', 'source_url' => 'javascript:alert(1)']);
+        $this->get(route('library.read', $unsafeItem))->assertStatus(422);
+
+        $unsafeFileItem = $this->item('Unsafe File URL', 'public_read_download');
+        $unsafeFileItem->files()->create(['file_type' => 'pdf', 'external_url' => 'file:///etc/passwd', 'is_primary' => true]);
+        $this->get(route('library.read', $unsafeFileItem))->assertStatus(422);
+
+        $safeItem = $this->item('Safe URL', 'external', ['source_type' => 'ojs', 'source_url' => 'https://ojs.example.org']);
+        $this->get(route('library.read', $safeItem))->assertRedirect('https://ojs.example.org');
     }
 
     private function item(string $title, string $policy, array $extra = []): LibraryItem

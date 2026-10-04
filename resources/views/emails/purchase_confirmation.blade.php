@@ -19,7 +19,7 @@
                         <td style="padding-top: 20px;">
                             <p style="color: #4a5568; margin-bottom: 10px;">Halo {{ $order->user->name }},</p>
                             <p style="color: #4a5568;">Pembayaran Anda untuk pesanan berikut telah berhasil diverifikasi:</p>
-                            
+
                             <table width="100%" cellpadding="10" cellspacing="0" border="0" style="margin-top: 20px; border-collapse: collapse;">
                                 <thead>
                                     <tr>

@@ -1,6 +1,6 @@
 <x-author-layout>
     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        
+
         @if($author->kyc_status === 'pending')
         <!-- Status Pending -->
         <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl shadow-sm overflow-hidden">
@@ -36,7 +36,7 @@
                         <p class="text-red-700 dark:text-red-300 text-sm">Ada kendala dengan data yang Anda ajukan.</p>
                     </div>
                 </div>
-                
+
                 <div class="bg-white dark:bg-[#1a1d24] rounded-xl p-6 border border-red-100 dark:border-red-900/50 mb-8">
                     <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2 uppercase tracking-wide">Catatan dari Kurator:</h4>
                     <p class="text-gray-700 dark:text-gray-300 italic">"{{ $author->rejection_reason ?? 'Dokumen KTP buram atau nama di rekening tidak sesuai dengan identitas KTP.' }}"</p>
@@ -91,6 +91,6 @@
             </div>
         </div>
         @endif
-        
+
     </div>
 </x-author-layout>

@@ -48,7 +48,7 @@
         </div>
 
         <div class="mt-8 text-center text-sm text-gray-500">
-            Sudah punya akun? 
+            Sudah punya akun?
             <a href="{{ route('login') }}" class="font-extrabold text-blue-600 hover:text-blue-500 transition-colors">
                 Masuk di sini
             </a>

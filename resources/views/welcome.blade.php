@@ -1,42 +1,92 @@
 <x-public-layout>
-    <section class="bg-gradient-to-br from-[#111327] via-[#25164f] to-[#4c1d95] text-white">
-        <div class="max-w-7xl mx-auto px-6 py-24 text-center">
-            <p class="text-sm font-bold tracking-[.3em] text-violet-200">P4I DIGITAL LIBRARY</p>
-            <h1 class="mt-5 text-4xl md:text-6xl font-black">Temukan Pengetahuan dalam Satu Perpustakaan.</h1>
-            <p class="mt-6 text-lg text-violet-100 max-w-3xl mx-auto">Akses buku, jurnal, artikel, dan publikasi P4I dalam satu platform digital.</p>
-            <form action="{{ route('library.index') }}" class="mt-10 max-w-3xl mx-auto flex rounded-2xl bg-white p-2 shadow-2xl">
-                <input name="q" class="flex-1 border-0 rounded-xl text-gray-900 focus:ring-0" placeholder="Cari judul, penulis, abstrak, ISBN, ISSN, atau DOI">
-                <button class="bg-violet-700 hover:bg-violet-800 px-6 py-3 rounded-xl font-bold">Cari</button>
+    <!-- Hero Section -->
+    <section class="bg-surface border-b border-border text-text-primary">
+        <div class="max-w-7xl mx-auto px-6 py-20 text-center">
+            <p class="text-sm font-bold tracking-widest text-text-secondary uppercase">P4I Digital Library</p>
+            <h1 class="mt-5 text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">Temukan Pengetahuan dalam Satu Perpustakaan.</h1>
+            <p class="mt-6 text-lg text-text-secondary max-w-3xl mx-auto">Akses buku, jurnal, artikel, dan publikasi P4I dalam satu platform digital.</p>
+
+            <form action="{{ route('library.index') }}" class="mt-10 max-w-3xl mx-auto flex items-center bg-background border border-border-strong rounded-2xl p-2 shadow-sm focus-within:ring-2 focus-within:ring-primary transition-all">
+                <div class="px-4 text-text-muted">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input name="q" class="flex-1 bg-transparent border-0 text-text-primary focus:ring-0 placeholder-text-muted text-base lg:text-lg" placeholder="Cari buku, jurnal, artikel, penulis, DOI, ISBN...">
+                <x-button type="submit" variant="primary" class="px-6 py-3 rounded-xl font-bold">Cari</x-button>
             </form>
+
             <div class="mt-8 flex justify-center gap-4 flex-wrap">
-                <a href="{{ route('library.index') }}" class="bg-white text-violet-900 px-6 py-3 rounded-xl font-bold">Jelajahi Perpustakaan</a>
-                <a href="{{ route('submission') }}" class="border border-violet-300 px-6 py-3 rounded-xl font-bold">Terbitkan Buku</a>
+                <x-button href="{{ route('library.index') }}" variant="secondary" class="px-6 py-3 rounded-xl font-bold">Jelajahi Perpustakaan</x-button>
+                <x-button href="{{ route('submission') }}" variant="ghost" class="px-6 py-3 rounded-xl font-bold">Terbitkan Buku</x-button>
             </div>
         </div>
     </section>
 
-    @php($typeLabels = ['book'=>'Buku','journal'=>'Jurnal','journal_article'=>'Artikel Jurnal','article'=>'Artikel','proceeding'=>'Prosiding','report'=>'Laporan','module'=>'Modul','monograph'=>'Monograf','other'=>'Lainnya'])
+    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-6 py-16 space-y-16">
-        @foreach([['Koleksi Terbaru', $latestItems], ['Buku Pilihan', $featuredBooks], ['Jurnal & Artikel Terbaru', $latestResearch]] as [$heading, $collection])
-            <section>
-                <div class="flex items-end justify-between mb-6"><h2 class="text-2xl font-black dark:text-white">{{ $heading }}</h2><a class="text-violet-600 font-semibold" href="{{ route('library.index') }}">Lihat semua →</a></div>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    @forelse($collection as $item)
-                        <a href="{{ route('library.show', $item) }}" class="block bg-white dark:bg-[#1a1d2e] border border-gray-200 dark:border-gray-700 rounded-2xl p-5 hover:-translate-y-1 hover:shadow-lg transition">
-                            <span class="text-xs font-bold uppercase text-violet-600">{{ $typeLabels[$item->type] ?? $item->type }}</span>
-                            <h3 class="font-bold text-lg mt-2 dark:text-white">{{ $item->title }}</h3>
-                            <p class="text-sm text-gray-500 mt-2">{{ $item->creators->pluck('name')->join(', ') ?: $item->publisher }}</p>
-                        </a>
-                    @empty
-                        <div class="col-span-full rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">Koleksi akan tampil setelah metadata diterbitkan.</div>
-                    @endforelse
-                </div>
-            </section>
-        @endforeach
 
-        <section class="rounded-3xl bg-violet-700 text-white p-10 md:flex items-center justify-between gap-8">
-            <div><h2 class="text-3xl font-black">Penerbitan Buku P4I</h2><p class="mt-3 text-violet-100">Ajukan naskah buku digital maupun cetak tanpa persyaratan KYC finansial.</p></div>
-            <a href="{{ route('submission') }}" class="inline-block mt-6 md:mt-0 bg-white text-violet-800 px-6 py-3 rounded-xl font-bold">Pelajari Penerbitan</a>
+        <!-- Koleksi Terbaru -->
+        <section>
+            <div class="flex items-end justify-between mb-6">
+                <h2 class="text-2xl font-black text-text-primary">Koleksi Terbaru</h2>
+                <a class="text-primary hover:text-primary-hover font-semibold transition-colors focus-ring rounded-lg px-2 py-1" href="{{ route('library.index') }}">Lihat semua &rarr;</a>
+            </div>
+
+            @if(count($latestItems) > 0)
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach($latestItems as $item)
+                        <x-publication-card :item="$item" :url="route('library.show', $item)" />
+                    @endforeach
+                </div>
+            @else
+                <x-empty-state title="Belum ada koleksi" description="Koleksi akan tampil setelah metadata diterbitkan." />
+            @endif
+        </section>
+
+        <!-- Buku Pilihan -->
+        <section>
+            <div class="flex items-end justify-between mb-6">
+                <h2 class="text-2xl font-black text-text-primary">Buku Pilihan</h2>
+                <a class="text-primary hover:text-primary-hover font-semibold transition-colors focus-ring rounded-lg px-2 py-1" href="{{ route('library.index', ['type' => 'book']) }}">Lihat semua buku &rarr;</a>
+            </div>
+
+            @if(count($featuredBooks) > 0)
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach($featuredBooks as $item)
+                        <x-publication-card :item="$item" :url="route('library.show', $item)" />
+                    @endforeach
+                </div>
+            @else
+                <x-empty-state title="Belum ada buku" description="Buku akan tampil setelah metadata diterbitkan." />
+            @endif
+        </section>
+
+        <!-- Jurnal & Artikel Terbaru -->
+        <section>
+            <div class="flex items-end justify-between mb-6">
+                <h2 class="text-2xl font-black text-text-primary">Jurnal & Artikel Terbaru</h2>
+                <a class="text-primary hover:text-primary-hover font-semibold transition-colors focus-ring rounded-lg px-2 py-1" href="{{ route('library.index', ['type' => 'journal_article']) }}">Lihat semua artikel &rarr;</a>
+            </div>
+
+            @if(count($latestResearch) > 0)
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach($latestResearch as $item)
+                        <x-publication-card :item="$item" :url="route('library.show', $item)" />
+                    @endforeach
+                </div>
+            @else
+                <x-empty-state title="Belum ada artikel" description="Jurnal dan artikel akan tampil setelah metadata diterbitkan." />
+            @endif
+        </section>
+
+        <!-- Call to Action: Penerbitan -->
+        <section class="rounded-3xl bg-primary-subtle border border-primary/20 p-10 md:flex items-center justify-between gap-8 shadow-sm">
+            <div>
+                <h2 class="text-3xl font-black text-text-primary">Penerbitan Buku P4I</h2>
+                <p class="mt-3 text-text-secondary">Ajukan naskah buku digital maupun cetak dengan cepat dan mudah ke penerbit P4I.</p>
+            </div>
+            <div class="mt-6 md:mt-0 flex-shrink-0">
+                <x-button href="{{ route('submission') }}" variant="primary" class="px-6 py-3 rounded-xl font-bold">Pelajari Penerbitan</x-button>
+            </div>
         </section>
     </div>
 </x-public-layout>

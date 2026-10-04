@@ -132,6 +132,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/library/{libraryItem}/edit', [\App\Http\Controllers\Admin\LibraryItemController::class, 'edit'])->name('library.edit');
     Route::put('/library/{libraryItem}', [\App\Http\Controllers\Admin\LibraryItemController::class, 'update'])->name('library.update');
     Route::get('/payments', [\App\Http\Controllers\Admin\PaymentVerificationController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{paymentSubmission}', [\App\Http\Controllers\Admin\PaymentVerificationController::class, 'show'])->name('payments.show');
     Route::get('/payments/{paymentSubmission}/proof', [\App\Http\Controllers\Admin\PaymentVerificationController::class, 'proof'])->name('payments.proof');
     Route::post('/payments/{paymentSubmission}/verify', [\App\Http\Controllers\Admin\PaymentVerificationController::class, 'verify'])->name('payments.verify');
     Route::post('/payments/{paymentSubmission}/reject', [\App\Http\Controllers\Admin\PaymentVerificationController::class, 'reject'])->name('payments.reject');
@@ -139,6 +140,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/payment-methods', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'store'])->name('payment-methods.store');
     Route::put('/payment-methods/{paymentMethod}', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'update'])->name('payment-methods.update');
     Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsDashboardController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/full', [\App\Http\Controllers\Admin\FullAnalyticsController::class, 'index'])->name('analytics.full');
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -160,6 +162,9 @@ Route::middleware(['auth', 'author', 'author.verified'])->prefix('author')->name
     
     // Submission routes
     Route::resource('submissions', \App\Http\Controllers\Author\BookSubmissionController::class);
+
+    // Published Books route
+    Route::get('/books', [App\Http\Controllers\Author\AuthorBookController::class, 'index'])->name('books.index');
 });
 // ─────────────────────────────────────────────────────────────────────────────
 

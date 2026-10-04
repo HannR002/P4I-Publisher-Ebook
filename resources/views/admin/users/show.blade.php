@@ -1,207 +1,205 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Profil Pengguna: ') }} {{ $user->name }}
+        <div class="flex items-center gap-4">
+            <a href="{{ route('admin.users.index') }}" class="text-text-muted hover:text-text-primary transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            </a>
+            <h2 class="font-bold text-2xl text-text-primary">
+                Detail Pengguna: <span class="font-normal">{{ $user->name }}</span>
             </h2>
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar</a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    @if (session('success'))
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <p class="font-medium">{{ session('success') }}</p>
+        </div>
+    @endif
 
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
+    @if ($errors->any())
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="space-y-6">
+        <!-- Profil Card -->
+        <div class="bg-surface rounded-xl border border-border p-6 md:p-8 flex flex-col lg:flex-row gap-8 justify-between items-center shadow-sm">
+            <div class="flex items-center gap-6">
+                <div class="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-md">
+                    <span class="text-3xl font-bold text-primary">{{ substr($user->name, 0, 1) }}</span>
                 </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <!-- Ringkasan Profil -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 border-b border-gray-200 flex flex-col md:flex-row items-center justify-between">
-                    <div class="flex items-center mb-4 md:mb-0">
-                        <div class="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-2xl text-indigo-800 font-bold mr-4">
-                            {{ substr($user->name, 0, 1) }}
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold">{{ $user->name }}</h3>
-                            <p class="text-gray-600">{{ $user->email }}</p>
-                            <div class="mt-1 space-x-2">
-                                @if ($user->is_admin)
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Admin</span>
-                                @endif
-                                @if ($user->is_active)
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktif</span>
-                                @else
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Ditangguhkan</span>
-                                @endif
-                                <span class="text-sm text-gray-500">Mendaftar: {{ $user->created_at->format('d M Y') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="text-center px-4 py-2 bg-gray-50 rounded-lg">
-                            <span class="block text-2xl font-bold text-gray-900">Rp {{ number_format($user->total_spent, 0, ',', '.') }}</span>
-                            <span class="block text-xs text-gray-500 uppercase">Total Belanja</span>
-                        </div>
-                        <div class="text-center px-4 py-2 bg-gray-50 rounded-lg">
-                            <span class="block text-2xl font-bold text-gray-900">{{ $user->completed_orders_count }}</span>
-                            <span class="block text-xs text-gray-500 uppercase">Pesanan Sukses</span>
-                        </div>
+                <div>
+                    <h3 class="text-2xl font-black text-text-primary">{{ $user->name }}</h3>
+                    <p class="text-text-secondary">{{ $user->email }}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @if ($user->is_admin)
+                            <x-badge variant="neutral">Admin</x-badge>
+                        @endif
+                        @if ($user->is_author)
+                            <x-badge variant="success">Author</x-badge>
+                        @endif
+                        @if ($user->is_active)
+                            <x-badge variant="success">Aktif</x-badge>
+                        @else
+                            <x-badge variant="error">Ditangguhkan</x-badge>
+                        @endif
+                        <span class="text-xs text-text-muted flex items-center ml-2 border-l border-border pl-2">
+                            Bergabung: {{ $user->created_at->format('d M Y') }}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 1: Koleksi Lisensi Buku -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 border-b border-gray-200">
-                    <h3 class="text-lg font-bold mb-4">Koleksi Lisensi Buku ({{ $user->active_licenses_count }} Aktif)</h3>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul Buku</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Terbit</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($user->bookLicenses as $license)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                            {{ $license->book->title ?? '[Buku Dihapus]' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $license->created_at->format('d M Y H:i') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if ($license->status === 'active')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Revoked</span>
-                                                <div class="text-xs text-red-500 mt-1 max-w-xs truncate" title="{{ $license->revocation_reason }}">
-                                                    Alasan: {{ $license->revocation_reason }}
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            @if ($license->status === 'active')
-                                                <button onclick="document.getElementById('revoke-modal-{{ $license->id }}').classList.remove('hidden')" class="text-red-600 hover:text-red-900">Cabut Lisensi</button>
-                                                
-                                                <!-- Modal Revoke -->
-                                                <div id="revoke-modal-{{ $license->id }}" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-                                                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                                                        <div class="mt-3 text-center">
-                                                            <h3 class="text-lg leading-6 font-medium text-gray-900">Cabut Lisensi</h3>
-                                                            <div class="mt-2 px-7 py-3">
-                                                                <p class="text-sm text-gray-500 text-left mb-2">Buku: {{ $license->book->title ?? 'N/A' }}</p>
-                                                                <form action="{{ route('admin.users.licenses.revoke', [$user->id, $license->id]) }}" method="POST">
-                                                                    @csrf
-                                                                    @method('PATCH')
-                                                                    <textarea name="reason" rows="3" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" placeholder="Alasan pencabutan lisensi..."></textarea>
-                                                                    <div class="items-center px-4 py-3 mt-4 space-x-2 flex justify-center">
-                                                                        <button type="button" onclick="document.getElementById('revoke-modal-{{ $license->id }}').classList.add('hidden')" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">Batal</button>
-                                                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">Cabut</button>
-                                                                    </div>
-                                                                </form>
+            <div class="flex gap-4 w-full lg:w-auto">
+                <div class="flex-1 lg:flex-none text-center p-4 bg-background border border-border rounded-xl">
+                    <span class="block text-2xl font-black text-primary">Rp{{ number_format((float)$user->total_spent, 0, ',', '.') }}</span>
+                    <span class="block text-xs font-bold text-text-muted uppercase mt-1">Total Belanja</span>
+                </div>
+                <div class="flex-1 lg:flex-none text-center p-4 bg-background border border-border rounded-xl">
+                    <span class="block text-2xl font-black text-text-primary">{{ (int)$user->completed_orders_count }}</span>
+                    <span class="block text-xs font-bold text-text-muted uppercase mt-1">Pesanan Sukses</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <!-- Koleksi Lisensi -->
+            <div class="bg-surface rounded-xl border border-border overflow-hidden shadow-sm flex flex-col h-[500px]">
+                <div class="p-5 border-b border-border bg-background">
+                    <h3 class="text-lg font-bold text-text-primary flex items-center justify-between">
+                        Koleksi Lisensi Digital
+                        <x-badge variant="primary">{{ (int)$user->active_licenses_count }} Aktif</x-badge>
+                    </h3>
+                </div>
+                <div class="overflow-y-auto flex-1">
+                    <ul class="divide-y divide-border">
+                        @forelse ($user->bookLicenses as $license)
+                            <li class="p-5 hover:bg-surface-hover/30 transition-colors {{ $license->status !== 'active' ? 'bg-red-50/50' : '' }}" x-data="{ showModal: false }">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <h4 class="font-bold text-text-primary mb-1">{{ $license->book->title ?? '[Buku Dihapus]' }}</h4>
+                                        <div class="text-xs text-text-muted mb-2">Diberikan pada: {{ $license->created_at->format('d M Y, H:i') }}</div>
+
+                                        @if ($license->status !== 'active')
+                                            <div class="mt-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 p-2 rounded w-full line-clamp-2" title="{{ $license->revocation_reason }}">
+                                                Dicabut: {{ $license->revocation_reason }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex flex-col items-end gap-2 shrink-0">
+                                        @if ($license->status === 'active')
+                                            <x-badge variant="success">Aktif</x-badge>
+                                            <button @click="showModal = true" class="text-xs font-bold text-red-600 hover:text-red-800 transition-colors">Cabut Lisensi</button>
+
+                                            <!-- Revoke Modal -->
+                                            <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+                                                <div @click.outside="showModal = false" class="bg-surface rounded-xl border border-border shadow-2xl w-full max-w-md overflow-hidden">
+                                                    <div class="p-5 border-b border-border bg-background">
+                                                        <h3 class="font-bold text-lg text-text-primary">Cabut Akses Digital</h3>
+                                                    </div>
+                                                    <form action="{{ route('admin.users.licenses.revoke', [$user->id, $license->id]) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="p-5 space-y-4">
+                                                            <div>
+                                                                <span class="block text-xs font-bold text-text-muted mb-1">Publikasi</span>
+                                                                <span class="block text-sm font-medium text-text-primary">{{ $license->book->title ?? 'N/A' }}</span>
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-bold text-text-primary mb-2">Alasan Pencabutan</label>
+                                                                <textarea name="reason" rows="3" required class="w-full rounded-lg border-border bg-background px-3 py-2 text-sm focus:ring-red-500 focus:border-red-500 transition-colors" placeholder="Tuliskan alasan..."></textarea>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                        <div class="p-4 border-t border-border bg-background flex justify-end gap-3">
+                                                            <x-button type="button" @click="showModal = false" variant="secondary">Batal</x-button>
+                                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Cabut Akses</button>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                            @else
-                                                <form action="{{ route('admin.users.licenses.restore', [$user->id, $license->id]) }}" method="POST" class="inline" onsubmit="return confirm('Pulihkan lisensi ini?');">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="text-green-600 hover:text-green-900">Pulihkan Lisensi</button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                            Belum ada lisensi buku.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                            </div>
+                                        @else
+                                            <x-badge variant="error">Dicabut</x-badge>
+                                            <form action="{{ route('admin.users.licenses.restore', [$user->id, $license->id]) }}" method="POST" class="inline" onsubmit="return confirm('Kembalikan akses membaca untuk publikasi ini?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-xs font-bold text-green-600 hover:text-green-800 transition-colors">Pulihkan Akses</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                        @empty
+                            <li class="p-8 text-center text-text-muted flex flex-col items-center justify-center h-full">
+                                <svg class="w-12 h-12 mb-3 text-text-muted/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                Belum ada lisensi / akses digital yang dimiliki pengguna ini.
+                            </li>
+                        @endforelse
+                    </ul>
                 </div>
             </div>
 
-            <!-- Tab 2: Riwayat Pesanan -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4">Riwayat Pesanan</h3>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Tagihan</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <!-- Riwayat Pesanan -->
+            <div class="bg-surface rounded-xl border border-border overflow-hidden shadow-sm flex flex-col h-[500px]">
+                <div class="p-5 border-b border-border bg-background">
+                    <h3 class="text-lg font-bold text-text-primary">Riwayat Transaksi Pesanan</h3>
+                </div>
+                <div class="overflow-y-auto flex-1 p-0">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-surface-hover/90 backdrop-blur z-10 border-b border-border text-xs uppercase text-text-muted font-bold tracking-wider">
+                            <tr>
+                                <th class="px-5 py-3">ID / Tanggal</th>
+                                <th class="px-5 py-3">Item</th>
+                                <th class="px-5 py-3 text-right">Tagihan</th>
+                                <th class="px-5 py-3 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            @forelse ($user->orders as $order)
+                                <tr class="hover:bg-surface-hover/30 transition-colors">
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <div class="font-bold text-text-primary">#{{ $order->id }}</div>
+                                        <div class="text-xs text-text-muted mt-1">{{ $order->created_at->format('d M Y, H:i') }}</div>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <ul class="space-y-1">
+                                            @foreach ($order->items as $item)
+                                                <li class="text-text-secondary line-clamp-1 text-xs before:content-['•'] before:mr-1 before:text-primary">
+                                                    {{ $item->book->title ?? '[Dihapus]' }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap text-right font-bold text-text-primary">
+                                        Rp{{ number_format((float)$order->gross_amount, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap text-right">
+                                        @if ($order->status === 'success')
+                                            <x-badge variant="success">Berhasil</x-badge>
+                                        @elseif ($order->status === 'pending')
+                                            <x-badge variant="warning">Pending</x-badge>
+                                        @else
+                                            <x-badge variant="neutral">{{ ucfirst($order->status) }}</x-badge>
+                                        @endif
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($user->orders as $order)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {{ $order->id }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $order->created_at->format('d M Y H:i') }}
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-gray-500">
-                                            <ul class="list-disc pl-4">
-                                                @foreach ($order->items as $item)
-                                                    <li>{{ $item->book->title ?? '[Buku Dihapus]' }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            Rp {{ number_format($order->gross_amount, 0, ',', '.') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if ($order->status === 'success')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Success</span>
-                                            @elseif ($order->status === 'pending')
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ ucfirst($order->status) }}</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                            Belum ada riwayat pesanan.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="p-12 text-center text-text-muted">
+                                        Belum ada riwayat transaksi.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

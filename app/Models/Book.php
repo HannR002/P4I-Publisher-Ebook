@@ -74,6 +74,10 @@ class Book extends Model
         static::saved(function (Book $book) {
             app(\App\Services\LibraryItemSynchronizer::class)->sync($book);
         });
+
+        static::deleted(function (Book $book) {
+            app(\App\Services\LibraryItemSynchronizer::class)->remove($book);
+        });
     }
 
     protected function casts(): array

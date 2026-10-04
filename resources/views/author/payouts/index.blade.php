@@ -1,7 +1,7 @@
 <x-author-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
+
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Dompet & Royalti</h2>
@@ -117,7 +117,7 @@
                 <div class="p-6 border-b border-gray-100">
                     <h3 class="text-lg font-semibold text-gray-900">Riwayat Penarikan Dana</h3>
                 </div>
-                
+
                 @if($payouts->isEmpty())
                     <div class="p-8 text-center text-gray-500 text-sm">
                         Belum ada riwayat penarikan dana.

@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class LibraryItem extends Model
 {
     protected $fillable = [
-        'type', 'title', 'slug', 'description', 'synopsis', 'abstract',
+        'parent_id', 'type', 'title', 'slug', 'description', 'synopsis', 'abstract',
         'featured_excerpt', 'excerpt_source', 'excerpt_page', 'publisher',
         'publication_date', 'publication_year', 'isbn', 'issn', 'doi',
         'language', 'cover_path', 'keywords', 'source_type', 'source_url',
@@ -40,12 +40,41 @@ class LibraryItem extends Model
                 $item->slug = $slug;
             }
         });
+
+        static::saving(function (LibraryItem $item): void {
+            if ($item->parent_id !== null) {
+                if ((string)$item->parent_id === (string)$item->id) {
+                    throw new \DomainException("A library item cannot be its own parent.");
+                }
+                $parent = static::find($item->parent_id);
+                if ($parent && $parent->parent_id !== null && $item->id !== null && (string)$parent->parent_id === (string)$item->id) {
+                    throw new \DomainException("Circular parent relationship detected.");
+                }
+                if ($parent) {
+                    if ($item->type === 'journal') {
+                        throw new \DomainException("A journal cannot have a parent.");
+                    }
+                    if ($item->type === 'journal_issue' && $parent->type !== 'journal') {
+                        throw new \DomainException("A journal_issue can only belong to a journal.");
+                    }
+                    if ($item->type === 'journal_article' && !in_array($parent->type, ['journal', 'journal_issue'], true)) {
+                        throw new \DomainException("A journal_article can only belong to a journal or journal_issue.");
+                    }
+                    if ($item->type === 'book_chapter' && $parent->type !== 'book') {
+                        throw new \DomainException("A book_chapter can only belong to a book.");
+                    }
+                }
+            }
+        });
     }
 
     public function getRouteKeyName(): string
     {
         return 'slug';
     }
+
+    public function parent() { return $this->belongsTo(LibraryItem::class, 'parent_id'); }
+    public function children() { return $this->hasMany(LibraryItem::class, 'parent_id'); }
 
     public function creators() { return $this->hasMany(LibraryItemCreator::class)->orderBy('sort_order'); }
     public function files() { return $this->hasMany(LibraryItemFile::class); }
@@ -82,5 +111,21 @@ class LibraryItem extends Model
                 ->orWhereHas('creators', fn (Builder $creator) => $creator->where('name', 'like', $like))
                 ->orWhereHas('categories', fn (Builder $category) => $category->where('name', 'like', $like));
         });
+    }
+
+    public static function getLocalizedType(string $type): string
+    {
+        return match ($type) {
+            'book' => 'Buku',
+            'journal' => 'Jurnal',
+            'journal_issue' => 'Edisi Jurnal',
+            'journal_article' => 'Artikel Jurnal',
+            'article' => 'Artikel',
+            'proceeding' => 'Prosiding',
+            'report' => 'Laporan',
+            'module' => 'Modul',
+            'monograph' => 'Monograf',
+            default => 'Lainnya',
+        };
     }
 }

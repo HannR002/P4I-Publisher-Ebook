@@ -22,7 +22,7 @@
                             </div>
                         @endif
                     </div>
-                    
+
                     @if($isOwned)
                         <div class="absolute top-2 right-2 bg-emerald-500/95 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm border border-emerald-400/50 uppercase tracking-widest">
                             Dimiliki
@@ -36,7 +36,7 @@
                 <div class="bg-white dark:bg-[#161615] border border-gray-100 dark:border-[#2d3147] rounded-3xl p-8 lg:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-grow relative overflow-hidden">
                     <!-- Subtle background decoration -->
                     <div class="absolute -right-24 -top-24 w-64 h-64 bg-blue-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    
+
                     <div class="relative z-10">
                         <h1 class="text-3xl lg:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-2 tracking-tight">
                             {{ $book->title }}
@@ -52,11 +52,11 @@
                                 @endforeach
                             </div>
                         @endif
-                        
+
                         <div class="prose prose-blue dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 mb-6 leading-relaxed font-medium">
                             <p>{{ $book->description }}</p>
                         </div>
-                        
+
                         <!-- Book Metadata -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                             <div class="bg-gray-50 dark:bg-[#1a1d2e] p-4 rounded-xl border border-gray-100 dark:border-[#2d3147]">
@@ -80,7 +80,7 @@
                                     Rp {{ number_format($book->price, 0, ',', '.') }}
                                 </span>
                             </div>
-                            
+
                             <div class="w-full sm:w-auto min-w-[250px]">
                                 @if($isOwned)
                                     <a href="{{ route('drm.reader', $book->id) }}" class="w-full flex justify-center items-center py-4 px-8 rounded-xl text-base font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 hover:text-emerald-800 transition-colors border border-emerald-200 dark:border-emerald-800 shadow-sm">
@@ -111,7 +111,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Security Badges -->
                 <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white dark:bg-[#161615] border border-gray-100 dark:border-[#2d3147] shadow-sm rounded-xl p-4 flex items-center justify-center text-center gap-3 hover:shadow-md transition-shadow">

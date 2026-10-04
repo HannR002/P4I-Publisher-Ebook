@@ -142,4 +142,76 @@ class AuthorSubmissionFlowTest extends TestCase
         
         $responseUpdate->assertStatus(403);
     }
+
+    public function test_author_can_upload_revision_when_requested()
+    {
+        Storage::fake('local');
+        $user = User::factory()->create();
+        $author = Author::create([
+            'user_id' => $user->id,
+            'pen_name' => 'John',
+            'kyc_status' => 'verified',
+        ]);
+        $category = \App\Models\Category::create(['name' => 'Fiction', 'slug' => 'fiction']);
+        $submission = BookSubmission::create([
+            'author_id' => $author->id,
+            'title' => 'My Book',
+            'synopsis' => 'Test',
+            'category_id' => $category->id,
+            'proposed_price' => 50000,
+            'manuscript_path' => 'old_path.pdf',
+            'status' => 'revision_requested'
+        ]);
+
+        $file = UploadedFile::fake()->createWithContent('revised.pdf', "%PDF-1.4\n...");
+
+        $response = $this->actingAs($user)->put("/author/submissions/{$submission->id}", [
+            'title' => 'Updated Title',
+            'category_id' => $category->id,
+            'synopsis' => str_repeat('B', 150),
+            'proposed_price' => 60000,
+            'manuscript_file' => $file,
+            'revision_note' => 'Fixed errors',
+            'action' => 'submit'
+        ]);
+
+        $response->assertRedirect(route('author.submissions.index'));
+
+        $this->assertDatabaseHas('book_submissions', [
+            'id' => $submission->id,
+            'status' => 'submitted',
+            'title' => 'Updated Title'
+        ]);
+
+        $this->assertDatabaseHas('submission_revisions', [
+            'submission_id' => $submission->id,
+            'manuscript_path' => 'old_path.pdf',
+            'revision_note' => 'Fixed errors'
+        ]);
+
+        $fresh = $submission->fresh();
+        $this->assertNotEquals('old_path.pdf', $fresh->manuscript_path);
+    }
+
+    public function test_another_author_cannot_revise_submission()
+    {
+        $owner = User::factory()->create();
+        $ownerAuthor = Author::create(['user_id' => $owner->id, 'pen_name' => 'Owner', 'kyc_status' => 'verified']);
+        $otherUser = User::factory()->create();
+        Author::create(['user_id' => $otherUser->id, 'pen_name' => 'Other', 'kyc_status' => 'verified']);
+
+        $submission = BookSubmission::create([
+            'author_id' => $ownerAuthor->id,
+            'title' => 'My Book',
+            'synopsis' => 'Test',
+            'manuscript_path' => 'test.pdf',
+            'status' => 'revision_requested'
+        ]);
+
+        $response = $this->actingAs($otherUser)->put("/author/submissions/{$submission->id}", [
+            'title' => 'Stealing Title',
+        ]);
+
+        $response->assertStatus(403);
+    }
 }

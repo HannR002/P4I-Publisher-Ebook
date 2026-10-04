@@ -4,9 +4,9 @@
             <h1 class="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">Kirim Naskah Anda</h1>
             <p class="text-lg text-gray-600 dark:text-gray-400">Bergabunglah dengan ratusan penulis lainnya dan publikasikan karya Anda melalui platform P4I.</p>
         </div>
-        
+
         <div class="bg-white dark:bg-[#161615] rounded-3xl p-8 lg:p-12 border border-gray-100 dark:border-[#2d3147] shadow-sm">
-            
+
             <div class="mb-10 p-6 bg-blue-50 dark:bg-indigo-900/30 rounded-2xl border border-blue-100 dark:border-indigo-800">
                 <h3 class="text-xl font-bold text-blue-900 dark:text-indigo-300 mb-3">Keuntungan Menerbitkan di Sini:</h3>
                 <ul class="list-disc pl-5 space-y-2 text-blue-800 dark:text-indigo-200">
@@ -56,7 +56,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <button type="button" onclick="alert('Fitur pengiriman naskah akan segera hadir.')" class="w-full py-4 bg-black dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm hover:bg-gray-800 dark:hover:bg-indigo-500 transition-colors">
                     Kirim Naskah Saya
                 </button>

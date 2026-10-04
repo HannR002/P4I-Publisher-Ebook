@@ -12,9 +12,28 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentVerificationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.payments.index', ['submissions' => PaymentSubmission::with(['order.user', 'paymentMethod'])->latest()->paginate(20)]);
+        $status = $request->get('status', 'submitted');
+
+        $query = PaymentSubmission::with(['order.user', 'order.items', 'paymentMethod']);
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($search = $request->get('search')) {
+            $query->whereHas('order', function($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $submissions = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.payments.index', compact('submissions', 'status', 'search'));
     }
 
     public function proof(PaymentSubmission $paymentSubmission)
@@ -23,10 +42,21 @@ class PaymentVerificationController extends Controller
         return response()->file(Storage::disk('local')->path($paymentSubmission->proof_path), ['X-Content-Type-Options' => 'nosniff']);
     }
 
+    public function show(PaymentSubmission $paymentSubmission)
+    {
+        $paymentSubmission->load(['order.user', 'order.items', 'paymentMethod', 'verifier']);
+        return view('admin.payments.show', compact('paymentSubmission'));
+    }
+
     public function verify(Request $request, PaymentSubmission $paymentSubmission)
     {
-        DB::transaction(function () use ($request, $paymentSubmission): void {
+        $alreadyVerified = false;
+        DB::transaction(function () use ($request, $paymentSubmission, &$alreadyVerified): void {
             $submission = PaymentSubmission::whereKey($paymentSubmission->id)->lockForUpdate()->firstOrFail();
+            if ($submission->status === 'verified') {
+                $alreadyVerified = true;
+                return;
+            }
             abort_unless($submission->status === 'submitted', 409, 'Bukti pembayaran sudah diproses.');
             $submission->update(['status' => 'verified', 'verified_at' => now(), 'verified_by' => $request->user()->id, 'rejection_reason' => null]);
             $order = $submission->order()->with('items')->lockForUpdate()->first();
@@ -41,18 +71,29 @@ class PaymentVerificationController extends Controller
                 }
             }
         });
+        if ($alreadyVerified) {
+            return back()->with('success', 'Pembayaran sudah pernah diverifikasi.');
+        }
         return back()->with('success', 'Pembayaran diverifikasi dan akses digital diberikan bila berlaku.');
     }
 
     public function reject(Request $request, PaymentSubmission $paymentSubmission)
     {
         $data = $request->validate(['rejection_reason' => ['required', 'string', 'max:1000']]);
-        DB::transaction(function () use ($request, $paymentSubmission, $data): void {
+        $alreadyRejected = false;
+        DB::transaction(function () use ($request, $paymentSubmission, $data, &$alreadyRejected): void {
             $submission = PaymentSubmission::whereKey($paymentSubmission->id)->lockForUpdate()->firstOrFail();
+            if ($submission->status === 'rejected') {
+                $alreadyRejected = true;
+                return;
+            }
             abort_unless($submission->status === 'submitted', 409, 'Bukti pembayaran sudah diproses.');
             $submission->update(['status' => 'rejected', 'verified_by' => $request->user()->id, 'rejection_reason' => $data['rejection_reason']]);
             $submission->order()->update(['status' => 'rejected']);
         });
+        if ($alreadyRejected) {
+            return back()->with('success', 'Pembayaran sudah pernah ditolak.');
+        }
         return back()->with('success', 'Pembayaran ditolak.');
     }
 }

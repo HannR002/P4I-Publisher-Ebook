@@ -73,7 +73,7 @@ class LibraryCatalogController extends Controller
     public function show(Request $request, LibraryItem $libraryItem, LibraryAccessService $access, AnalyticsRecorder $analytics)
     {
         abort_unless($libraryItem->status === 'published', 404);
-        $libraryItem->load(['creators', 'categories', 'files', 'editions']);
+        $libraryItem->load(['creators', 'categories', 'files', 'editions', 'parent', 'children' => fn($q) => $q->published()]);
         $analytics->record('detail_view', $request, $libraryItem);
 
         return view('library.show', ['item' => $libraryItem, 'actions' => $access->actions($libraryItem, $request->user())]);

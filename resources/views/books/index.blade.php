@@ -25,7 +25,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
             @forelse ($books as $book)
                 <div class="group flex flex-col h-full bg-white dark:bg-[#161615] rounded-3xl border border-gray-100 dark:border-[#2d3147] shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 ease-out relative overflow-visible z-10 hover:z-20">
-                    
+
                     <!-- Cover Image Container (Elevated on hover) -->
                     <div class="w-full relative px-6 pt-6 mb-2">
                         <div class="aspect-[2/3] w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-[#1a1d2e] shadow-md group-hover:shadow-2xl transition-shadow duration-500 relative">
@@ -36,7 +36,7 @@
                                     <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                 </div>
                             @endif
-                            
+
                             <!-- Badge "Sudah Dimiliki" -->
                             @if(in_array($book->id, $ownedBookIds))
                                 <div class="absolute top-2 right-2 bg-emerald-500/95 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm border border-emerald-400/50 uppercase tracking-widest">
@@ -45,7 +45,7 @@
                             @endif
                         </div>
                     </div>
-                    
+
                     <!-- Book Info -->
                     <div class="px-6 pb-6 pt-2 flex flex-col flex-grow">
                         <div class="mb-4">
@@ -58,7 +58,7 @@
                                     {{ $book->title }}
                                 </a>
                             </h3>
-                            
+
                             @if($book->categories->count() > 0)
                                 <div class="flex flex-wrap gap-1 mt-2">
                                     @foreach($book->categories->take(2) as $category)
@@ -74,14 +74,14 @@
                                 </div>
                             @endif
                         </div>
-                        
+
                         <!-- Price -->
                         <div class="mt-auto pt-2">
                             <span class="text-xl font-black text-gray-900 dark:text-white">
                                 Rp {{ number_format($book->price, 0, ',', '.') }}
                             </span>
                         </div>
-                        
+
                         <!-- Action Button (Relative to stay above absolute link) -->
                         <div class="mt-5 relative z-10">
                             @if(in_array($book->id, $ownedBookIds))
@@ -104,7 +104,7 @@
                 </div>
             @endforelse
         </div>
-        
+
         <!-- Pagination -->
         @if($books->hasPages())
             <div class="mt-16 pt-8 border-t border-gray-200 dark:border-[#2d3147]">
