@@ -43,3 +43,17 @@
 
 ## Conclusion
 The application was successfully updated to P4I Digital Library version 2026-10-04. The process adhered perfectly to all safety gates without modifying the existing storage files or dirtying the production database schema unnecessarily. All legacy book projections executed perfectly.
+
+## Post-Deploy Hotfix (Phase 8.5)
+- **Original Release Commit/Tag**: `8e6fefac28fa0f6dfd302df7c707f1f987cad4c9` / `p4i-digital-library-2026-10-04`
+- **Hotfix Tag**: `p4i-digital-library-2026-10-04-hotfix1`
+- **Branding Defect Resolved**: Removed legacy "P4I E-Book" and unsupported DRM copy from auth/guest interfaces. Replaced with "P4I Digital Library".
+- **Raw Label Defect Resolved**: Created `getLocalizedType` and `getLocalizedAccessPolicy` in `LibraryItem` to map raw enums (e.g., `book`, `public_read_download`, `manual_purchase`) to readable Indonesian equivalents. Removed duplicate "Book" icon text in placeholder cards.
+- **Route Discrepancy Result**: EXPECTED_ENVIRONMENTAL. The count dropped from 112 to 108 because 4 routes (Midtrans webhook, checkout, Author payouts) are correctly gated behind feature flags (`config('features.midtrans.enabled')` and `config('features.payout.enabled')`), which are correctly disabled in production.
+- **Book Data Provenance Result**: `PREDEPLOY_BOOK_COUNT=4`, `CURRENT_BOOK_COUNT=4`. `BOOKS_EXISTED_PREDEPLOY=true`. The 4 books existed before the Phase 8.4 deployment. `POSSIBLE_TEST_CONTENT_PRESENT=true`.
+- **Fixture Execution Result**: `PRODUCTION_FIXTURE_SEED_EXECUTED=false`. `DevelopmentVisualFixtureSeeder` explicitly aborts in production environments.
+- **Tests**: Local assertions, route cache, view cache, and Vite build passed locally.
+- **Production Smoke**: HOME=200, LIBRARY=200, LOGIN=200. Verified externally that localizations are applied and legacy copy is gone.
+- **Authenticated Smoke Status**: REQUIRES_USER_MANUAL_CHECK.
+- **Reader Smoke Status**: NOT_TESTABLE.
+- **Queue/Scheduler Status**: QUEUE_HPanel_CONFIGURATION_REQUIRED=true, SCHEDULER_HPanel_VERIFICATION_REQUIRED=true.
