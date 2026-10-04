@@ -128,4 +128,17 @@ class LibraryItem extends Model
             default => 'Lainnya',
         };
     }
+    public static function getLocalizedAccessPolicy(string $policy): string
+    {
+        return match ($policy) {
+            'public_read_download' => 'Baca & Unduh Gratis',
+            'public_read_only' => 'Baca Gratis',
+            'registered_read_download' => 'Masuk untuk Baca & Unduh',
+            'registered_read_only' => 'Masuk untuk Membaca',
+            'manual_purchase' => 'Pembelian Manual',
+            'physical_only' => 'Versi Cetak',
+            'external' => 'Akses Eksternal',
+            default => str($policy)->replace('_', ' ')->title()->toString(),
+        };
+    }
 }

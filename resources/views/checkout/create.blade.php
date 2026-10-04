@@ -70,7 +70,7 @@
 </head>
 <body>
     <div class="card">
-        <div class="badge">📚 E-Book P4I</div>
+        <div class="badge">📚 P4I Digital Library</div>
         <h1>{{ $book->title }}</h1>
         <p class="author">oleh {{ $book->author }}</p>
 

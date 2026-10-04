@@ -5,7 +5,7 @@
 
 @php
     $coverUrl = $item->cover_image_path ? Storage::disk('public')->url($item->cover_image_path) : null;
-    $typeLabel = str($item->type)->replace('_', ' ')->title();
+    $typeLabel = \App\Models\LibraryItem::getLocalizedType($item->type);
 @endphp
 
 <a href="{{ $url }}" class="group block bg-surface border border-border rounded-xl shadow-sm hover:shadow-md hover:border-border-strong transition-all overflow-hidden flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-focus-ring focus:ring-offset-2">
@@ -19,7 +19,6 @@
             <!-- Placeholder -->
             <div class="flex flex-col items-center justify-center p-4 text-text-muted">
                 <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                <span class="text-xs uppercase font-bold tracking-widest">{{ $typeLabel }}</span>
             </div>
         @endif
 
@@ -41,7 +40,7 @@
 
         <div class="mt-auto pt-4 flex items-center justify-between">
             <span class="text-xs font-medium text-text-muted uppercase tracking-wider">
-                {{ str($item->access_policy)->replace('_', ' ') }}
+                {{ \App\Models\LibraryItem::getLocalizedAccessPolicy($item->access_policy) }}
             </span>
         </div>
     </div>
