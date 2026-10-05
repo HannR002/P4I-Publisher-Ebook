@@ -82,3 +82,14 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **hPanel Queue Cron Recommendation**: /bin/sh /home/u239415845/scripts/p4i/run_queue.sh (Every minute)
 - **Pending Queue Jobs**: 0
 - **Remaining Manual Steps**: Configure the recommended crons in Hostinger hPanel > Advanced > Cron Jobs.
+
+## Phase 8.10 - Final Production Acceptance Record
+- **Queue Cron**: Installed and active (* * * * * /bin/sh /home/u239415845/scripts/p4i/run_queue.sh)
+- **Scheduler Cron**: Installed and future-proof active (* * * * * /bin/sh /home/u239415845/scripts/p4i/run_scheduler.sh)
+- **Scroll-to-top Verification**: PENDING
+- **Authenticated User Smoke**: PENDING
+- **Authenticated Author Smoke**: PENDING
+- **Authenticated Admin Smoke**: PENDING
+- **Reader Smoke**: NOT_TESTABLE
+- **Technical Debt**: RecordAuthorRoyaltyListener may currently enter the queue before returning early while royalty functionality is disabled. Consider cleanup in a future maintenance release.
+- **Final Production Acceptance**: WAITING_FOR_MANUAL_ACCEPTANCE
