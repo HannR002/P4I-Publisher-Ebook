@@ -93,3 +93,11 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **Reader Smoke**: NOT_TESTABLE
 - **Technical Debt**: RecordAuthorRoyaltyListener may currently enter the queue before returning early while royalty functionality is disabled. Consider cleanup in a future maintenance release.
 - **Final Production Acceptance**: WAITING_FOR_MANUAL_ACCEPTANCE
+
+## Final Manual Acceptance Update
+- **Scroll-to-top User Verification**: PASS
+- **Document Text Visible**: false
+- **Authenticated User Smoke**: PENDING
+- **Authenticated Author Smoke**: PENDING
+- **Authenticated Admin Smoke**: PENDING
+- **Final Production Acceptance**: WAITING_FOR_MANUAL_ACCEPTANCE
