@@ -67,3 +67,18 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **Tests**: UiHotfixTest added and passed successfully locally.
 - **Deployment**: Safely synced hotfix code. Cache cleared remotely.
 - **Queue / Scheduler**: php artisan queue:work --stop-when-empty and php artisan schedule:run recommended via hPanel.
+
+## Phase 8.8 - Final Production Closure
+- **Scroll-to-top User Verification**: PENDING
+- **Authenticated Smoke**: REQUIRES_MANUAL_CHECK
+- **Reader Smoke**: NOT_TESTABLE
+- **Scheduled Tasks**: 0 tasks defined
+- **Queue Usage**: Mail sending, Webhooks, Royalties.
+- **PHP Binary**: /usr/bin/php
+- **Flock Binary**: /usr/bin/flock
+- **Scheduler Wrapper**: Created at /home/u239415845/scripts/p4i/run_scheduler.sh
+- **Queue Wrapper**: Created at /home/u239415845/scripts/p4i/run_queue.sh
+- **hPanel Scheduler Cron Recommendation**: /bin/sh /home/u239415845/scripts/p4i/run_scheduler.sh (Every minute)
+- **hPanel Queue Cron Recommendation**: /bin/sh /home/u239415845/scripts/p4i/run_queue.sh (Every minute)
+- **Pending Queue Jobs**: 0
+- **Remaining Manual Steps**: Configure the recommended crons in Hostinger hPanel > Advanced > Cron Jobs.
