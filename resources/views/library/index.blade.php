@@ -30,7 +30,7 @@
                     <div class="space-y-4">
                         <x-form-field id="q" name="q" label="Kata Kunci" :value="request('q')" placeholder="Cari..." />
 
-                        <x-form-field id="type" name="type" type="select" label="Jenis Konten" :value="request('type')" :options="['' => 'Semua Jenis'] + collect($types)->mapWithKeys(fn($t) => [$t => str($t)->replace('_',' ')->title()])->all()" />
+                        <x-form-field id="type" name="type" type="select" label="Jenis Konten" :value="request('type')" :options="['' => 'Semua Jenis'] + collect($types)->mapWithKeys(fn($t) => [$t => \App\Models\LibraryItem::getLocalizedType($t)])->all()" />
 
                         <x-form-field id="category" name="category" type="select" label="Kategori" :value="request('category')" :options="['' => 'Semua Kategori'] + $categories->pluck('name', 'slug')->all()" />
 

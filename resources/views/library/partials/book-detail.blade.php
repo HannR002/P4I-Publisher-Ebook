@@ -15,7 +15,7 @@
     <!-- Details Column -->
     <div class="lg:col-span-8">
         <div class="flex flex-wrap gap-2 mb-4">
-            <x-badge color="primary">{{ str($item->type)->replace('_', ' ')->title() }}</x-badge>
+            <x-badge color="primary">{{ \App\Models\LibraryItem::getLocalizedType($item->type) }}</x-badge>
             @foreach($item->categories as $category)
                 <x-badge color="gray">{{ $category->name }}</x-badge>
             @endforeach

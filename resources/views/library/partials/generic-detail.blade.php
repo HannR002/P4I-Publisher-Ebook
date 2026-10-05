@@ -1,6 +1,6 @@
 <div class="bg-surface border border-border rounded-2xl p-8 md:p-12 shadow-sm">
     <div class="flex flex-wrap gap-2 mb-6">
-        <x-badge color="primary">{{ str($item->type)->replace('_',' ')->title() }}</x-badge>
+        <x-badge color="primary">{{ \App\Models\LibraryItem::getLocalizedType($item->type) }}</x-badge>
         @foreach($item->categories as $category)
             <x-badge color="gray">{{ $category->name }}</x-badge>
         @endforeach

@@ -34,10 +34,34 @@
                         <!-- Desktop Menu -->
                         <div class="hidden xl:flex items-center gap-1 text-sm font-semibold text-text-secondary">
                             <a href="{{ route('home') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('home') ? 'text-primary' : '' }}">Beranda</a>
-                            <a href="{{ route('library.index') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->fullUrl() === route('library.index') ? 'text-primary' : '' }}">Perpustakaan</a>
-                            <a href="{{ route('library.index', ['type'=>'book']) }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request('type') === 'book' ? 'text-primary' : '' }}">Buku</a>
-                            <a href="{{ route('library.index', ['type'=>'journal']) }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request('type') === 'journal' ? 'text-primary' : '' }}">Jurnal</a>
-                            <a href="{{ route('library.index', ['type'=>'article']) }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request('type') === 'article' ? 'text-primary' : '' }}">Artikel</a>
+                            
+                            <!-- Perpustakaan Dropdown -->
+                            <div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
+                                <button @click="open = ! open" class="inline-flex items-center px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('library.*') || request()->routeIs('books.*') || request()->routeIs('journals.*') || request()->routeIs('articles.*') ? 'text-primary' : '' }}">
+                                    Perpustakaan
+                                    <svg class="ml-1 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div x-show="open"
+                                        x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 scale-95"
+                                        x-transition:enter-end="opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 scale-100"
+                                        x-transition:leave-end="opacity-0 scale-95"
+                                        class="absolute z-50 mt-2 w-48 rounded-xl shadow-lg origin-top-left left-0"
+                                        style="display: none;"
+                                        @click="open = false">
+                                    <div class="rounded-xl overflow-hidden py-2 bg-surface backdrop-blur-md border border-border">
+                                        <a href="{{ route('library.index') }}" class="block px-4 py-2 text-sm text-text-primary hover:bg-surface-muted {{ request()->fullUrl() === route('library.index') ? 'font-bold text-primary' : '' }}">Semua Koleksi</a>
+                                        <a href="{{ route('library.index', ['type'=>'book']) }}" class="block px-4 py-2 text-sm text-text-primary hover:bg-surface-muted {{ request('type') === 'book' ? 'font-bold text-primary' : '' }}">Buku</a>
+                                        <a href="{{ route('library.index', ['type'=>'journal']) }}" class="block px-4 py-2 text-sm text-text-primary hover:bg-surface-muted {{ request('type') === 'journal' ? 'font-bold text-primary' : '' }}">Jurnal</a>
+                                        <a href="{{ route('library.index', ['type'=>'article']) }}" class="block px-4 py-2 text-sm text-text-primary hover:bg-surface-muted {{ request('type') === 'article' ? 'font-bold text-primary' : '' }}">Artikel</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <a href="{{ route('submission') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('submission') ? 'text-primary' : '' }}">Penerbitan Buku</a>
                             <a href="{{ route('about') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('about') ? 'text-primary' : '' }}">Tentang</a>
                         </div>
@@ -63,36 +87,34 @@
                                         </x-slot>
 
                                         <x-slot name="content">
-                                            <div class="bg-surface/95 backdrop-blur-md border border-border rounded-xl py-2 mt-1 w-52">
-                                                <x-dropdown-link :href="route('my-library')" class="text-text-primary hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
-                                                    Perpustakaan Saya
-                                                </x-dropdown-link>
-                                                <x-dropdown-link :href="route('my-orders')" class="text-text-primary hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
-                                                    Riwayat Transaksi
-                                                </x-dropdown-link>
+                                            <x-dropdown-link :href="route('my-library')" class="text-text-primary hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
+                                                Perpustakaan Saya
+                                            </x-dropdown-link>
+                                            <x-dropdown-link :href="route('my-orders')" class="text-text-primary hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
+                                                Riwayat Transaksi
+                                            </x-dropdown-link>
 
-                                                @if(Auth::check() && Auth::user()->isAuthor())
-                                                    <div class="my-1 mx-3 border-t border-border"></div>
-                                                    <x-dropdown-link :href="route('author.dashboard')" class="text-primary hover:bg-primary-subtle font-bold px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
-                                                        Portal Penulis
-                                                    </x-dropdown-link>
-                                                @endif
-
-                                                @if(Auth::user()->is_admin)
-                                                    <div class="my-1 mx-3 border-t border-border"></div>
-                                                    <x-dropdown-link :href="route('admin.books.index')" class="text-primary hover:bg-primary-subtle font-bold px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
-                                                        Kelola Buku (Admin)
-                                                    </x-dropdown-link>
-                                                @endif
-
+                                            @if(Auth::check() && Auth::user()->isAuthor())
                                                 <div class="my-1 mx-3 border-t border-border"></div>
-                                                <form method="POST" action="{{ route('logout') }}">
-                                                    @csrf
-                                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-danger hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors">
-                                                        Log Out
-                                                    </x-dropdown-link>
-                                                </form>
-                                            </div>
+                                                <x-dropdown-link :href="route('author.dashboard')" class="text-primary hover:bg-primary-subtle font-bold px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
+                                                    Portal Penulis
+                                                </x-dropdown-link>
+                                            @endif
+
+                                            @if(Auth::user()->is_admin)
+                                                <div class="my-1 mx-3 border-t border-border"></div>
+                                                <x-dropdown-link :href="route('admin.books.index')" class="text-primary hover:bg-primary-subtle font-bold px-4 py-2 mx-1 rounded-lg transition-colors flex items-center gap-2">
+                                                    Kelola Buku (Admin)
+                                                </x-dropdown-link>
+                                            @endif
+
+                                            <div class="my-1 mx-3 border-t border-border"></div>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-danger hover:bg-surface-muted font-medium px-4 py-2 mx-1 rounded-lg transition-colors">
+                                                    Log Out
+                                                </x-dropdown-link>
+                                            </form>
                                         </x-slot>
                                     </x-dropdown>
                                 </div>
@@ -121,10 +143,20 @@
                      class="xl:hidden absolute top-full left-0 w-full bg-surface border-b border-border shadow-lg">
                     <div class="px-4 pt-2 pb-6 space-y-1">
                         <a href="{{ route('home') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Beranda</a>
-                        <a href="{{ route('library.index') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Perpustakaan</a>
-                        <a href="{{ route('library.index', ['type'=>'book']) }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Buku</a>
-                        <a href="{{ route('library.index', ['type'=>'journal']) }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Jurnal</a>
-                        <a href="{{ route('library.index', ['type'=>'article']) }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Artikel</a>
+                        
+                        <div x-data="{ libraryOpen: false }" class="space-y-1">
+                            <button @click="libraryOpen = !libraryOpen" class="w-full text-left flex justify-between items-center px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">
+                                Perpustakaan
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': libraryOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div x-show="libraryOpen" x-cloak class="pl-4 space-y-1 pb-2">
+                                <a href="{{ route('library.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted">Semua Koleksi</a>
+                                <a href="{{ route('library.index', ['type'=>'book']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted">Buku</a>
+                                <a href="{{ route('library.index', ['type'=>'journal']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted">Jurnal</a>
+                                <a href="{{ route('library.index', ['type'=>'article']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-text-secondary hover:text-text-primary hover:bg-surface-muted">Artikel</a>
+                            </div>
+                        </div>
+
                         <a href="{{ route('submission') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Penerbitan Buku</a>
                         <a href="{{ route('about') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Tentang</a>
 
