@@ -97,5 +97,6 @@
                 animation-delay: 4s;
             }
         </style>
+        <x-scroll-to-top />
     </body>
 </html>

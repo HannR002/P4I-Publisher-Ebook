@@ -215,5 +215,7 @@
                 </div>
             </div>
         </footer>
+
+        <x-scroll-to-top />
     </body>
 </html>

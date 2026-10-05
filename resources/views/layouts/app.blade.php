@@ -34,5 +34,6 @@
                 {{ $slot }}
             </main>
         </div>
+        <x-scroll-to-top />
     </body>
 </html>
