@@ -57,3 +57,13 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **Authenticated Smoke Status**: REQUIRES_USER_MANUAL_CHECK.
 - **Reader Smoke Status**: NOT_TESTABLE.
 - **Queue/Scheduler Status**: QUEUE_HPanel_CONFIGURATION_REQUIRED=true, SCHEDULER_HPanel_VERIFICATION_REQUIRED=true.
+
+## Phase 8.7 - Scroll-to-Top UI Hotfix
+- **Hotfix2 Tag**: p4i-digital-library-2026-10-05-hotfix2
+- **Scroll-to-top component**: Implemented with book-cover styling and Alpine.js. Includes smooth scroll and prefers-reduced-motion fallback.
+- **Layouts covered**: Public, Guest, Admin, Author.
+- **Defect Fix**: Replaced raw document-text in empty-state blade component with proper SVG rendering.
+- **Visual Acceptance**: Component verified visually to match requested book-spine aesthetic and safe positioning.
+- **Tests**: UiHotfixTest added and passed successfully locally.
+- **Deployment**: Safely synced hotfix code. Cache cleared remotely.
+- **Queue / Scheduler**: php artisan queue:work --stop-when-empty and php artisan schedule:run recommended via hPanel.
