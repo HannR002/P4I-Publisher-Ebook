@@ -62,4 +62,72 @@ class UiHotfixTest extends TestCase
         $response->assertSee('Perpustakaan Saya');
         $response->assertSee('Log Out');
     }
+
+    public static function guestAuthPages(): array
+    {
+        return [
+            'login' => ['/login'],
+            'register' => ['/register'],
+            'forgot-password' => ['/forgot-password'],
+            'reset-password' => ['/reset-password/test-token'],
+        ];
+    }
+
+    /**
+     * @dataProvider guestAuthPages
+     */
+    public function test_guest_auth_pages_are_light_only(string $uri)
+    {
+        $response = $this->get($uri);
+        $response->assertStatus(200);
+
+        $response->assertSee('P4I', false);
+        $response->assertSee('Digital Library', false);
+        $response->assertDontSee('P4I Publisher Anda', false);
+
+        // Light-only lock is present.
+        $response->assertSee('<meta name="color-scheme" content="light only">', false);
+        $response->assertSee('style="color-scheme: light;"', false);
+        $response->assertSee("classList.remove('dark')", false);
+
+        // The shared dark-theme initializer must not run on auth pages.
+        $response->assertDontSee('prefers-color-scheme: dark', false);
+        $response->assertDontSee("classList.add('dark')", false);
+        $response->assertDontSee('localStorage.theme', false);
+
+        // Accessible form remains.
+        $response->assertSee('<form method="POST"', false);
+    }
+
+    public function test_login_and_register_forms_remain_accessible()
+    {
+        $this->get('/login')
+            ->assertSee('Selamat Datang Kembali')
+            ->assertSee('for="email"', false)
+            ->assertSee('for="password"', false)
+            ->assertSee('Lupa sandi?')
+            ->assertSee('Ingat Saya')
+            ->assertSee('MASUK SEKARANG')
+            ->assertSee('Daftar Gratis');
+
+        $this->get('/register')
+            ->assertSee('Buat Akun Baru')
+            ->assertSee('for="name"', false)
+            ->assertSee('for="password_confirmation"', false)
+            ->assertSee('DAFTAR SEKARANG');
+    }
+
+    public function test_public_area_remains_dual_theme()
+    {
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('prefers-color-scheme: dark', false);
+    }
+
+    public function test_localized_book_type_label()
+    {
+        $this->assertSame('Buku', \App\Models\LibraryItem::getLocalizedType('book'));
+        $this->assertSame('Jurnal', \App\Models\LibraryItem::getLocalizedType('journal'));
+        $this->assertSame('Artikel', \App\Models\LibraryItem::getLocalizedType('article'));
+    }
 }

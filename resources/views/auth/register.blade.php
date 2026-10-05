@@ -2,7 +2,7 @@
     <!-- Header -->
     <div class="mb-10 text-center lg:text-left">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Buat Akun Baru ✨</h1>
-        <p class="text-gray-500 text-sm">Bergabunglah dengan ribuan pembaca setia P4I Publisher hari ini.</p>
+        <p class="text-gray-500 text-sm">Bergabunglah dengan ribuan pembaca setia P4I Digital Library hari ini.</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}" class="space-y-5">

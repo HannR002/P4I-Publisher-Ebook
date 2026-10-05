@@ -2,7 +2,7 @@
     <!-- Header -->
     <div class="mb-10 text-center lg:text-left">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Selamat Datang Kembali 👋</h1>
-        <p class="text-gray-500 text-sm">Silakan masuk ke akun P4I Publisher Anda untuk melanjutkan.</p>
+        <p class="text-gray-500 text-sm">Silakan masuk ke akun P4I Digital Library Anda untuk melanjutkan.</p>
     </div>
 
     <!-- Session Status -->

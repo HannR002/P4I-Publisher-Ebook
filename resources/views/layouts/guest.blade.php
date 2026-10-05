@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <!-- Authentication pages are LIGHT MODE ONLY (ignore app/system dark theme) -->
+        <meta name="color-scheme" content="light only">
 
         <title>{{ config('app.name', 'P4I Publisher') }} - Authentication</title>
 
@@ -13,16 +15,21 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <!-- Theme Initialization (Prevents FOUC) -->
-        <x-theme-init />
+        {{-- Light-mode lock: never apply the shared dark theme on auth pages.
+             The stored user theme preference is left untouched so
+             public/library/author/admin areas keep their dual-theme behaviour. --}}
+        <script>
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        </script>
     </head>
-    <body class="font-sans text-text-primary antialiased bg-background transition-colors duration-300 min-h-screen p-4 md:p-6 lg:p-8">
+    <body class="auth-light font-sans text-gray-900 antialiased bg-gray-50 min-h-screen p-4 md:p-6 lg:p-8">
 
         <!-- Global Asymmetric Bento Grid Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[calc(100vh-4rem)]">
 
             <!-- LEFT: Authentication Form (40%) -->
-            <div class="lg:col-span-5 flex flex-col justify-center bg-surface border border-border rounded-[2rem] p-8 lg:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+            <div class="lg:col-span-5 flex flex-col justify-center bg-white border border-gray-100 rounded-[2rem] p-8 lg:p-12 shadow-lg relative overflow-hidden">
                 <!-- Branding / Logo -->
                 <div class="absolute top-8 left-8">
                     <a href="/" class="flex items-center gap-2">
