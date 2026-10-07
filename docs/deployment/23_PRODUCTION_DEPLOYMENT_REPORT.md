@@ -118,3 +118,23 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **Queue Status**: ACTIVE
 - **Scheduler Status**: FUTURE_PROOF_ACTIVE
 - **Final Production Acceptance**: PASS
+
+### Phase 8.15: Hotfix5 & Admin Account Verification
+- **Hotfix5 Commit**: 8fc6c306
+- **Hotfix5 Tag**: p4i-digital-library-2026-10-07-hotfix5
+- **Hotfix5 Clean Release**: true
+- **P4I Main Site Return Link**: IMPLEMENTED (Target: https://p4ijournal.org)
+- **Admin Account Exist**: YES (`admin@p4ijournal.org`)
+- **Admin Role Verified**: YES (Role is now confirmed/set)
+- **Admin Session Recovery**: SESSIONS_INVALIDATED
+- **Admin Temp Password**: SET (Rotation required)
+- **Login With Temp Password**: PASS
+- **Password Reset Feature**: 
+  - Routes Available: YES
+  - Storage Available: YES
+  - Mail Configuration: PRESENT
+  - Reset Link Request: ACCEPTED
+  - Reset Mail: DISPATCHED
+- **Cache Purge Required**: NO (live smoke passed)
+- **Database Schema Changed**: NO
+- **Migrations Run**: NO
