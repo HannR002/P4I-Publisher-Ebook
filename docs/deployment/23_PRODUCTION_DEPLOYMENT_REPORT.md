@@ -106,15 +106,15 @@ The application was successfully updated to P4I Digital Library version 2026-10-
 - **Hotfix4 Commit**: 725b2cb2ec27f6e3189b8ec88a3ee34265cd0d38
 - **Hotfix4 Tag**: p4i-digital-library-2026-10-05-hotfix4
 - **Clean Release**: true
-- **Login Light-only**: PENDING
-- **Register Light-only**: PENDING
-- **Navbar Consolidation**: PENDING
-- **Perpustakaan Dropdown**: PENDING
-- **Account Menu**: PENDING
-- **Mobile Nav**: PENDING
-- **Authenticated User Smoke**: PENDING
-- **Authenticated Author Smoke**: PENDING
-- **Authenticated Admin Smoke**: PENDING
+- **Login Light-only**: PASS
+- **Register Light-only**: PASS
+- **Navbar Consolidation**: PASS
+- **Perpustakaan Dropdown**: PASS
+- **Account Menu**: PASS
+- **Mobile Nav**: PASS
+- **Authenticated User Smoke**: PASS
+- **Authenticated Author Smoke**: PASS
+- **Authenticated Admin Smoke**: PASS
 - **Queue Status**: ACTIVE
 - **Scheduler Status**: FUTURE_PROOF_ACTIVE
-- **Final Production Acceptance**: WAITING_FOR_MANUAL_ACCEPTANCE
+- **Final Production Acceptance**: PASS
