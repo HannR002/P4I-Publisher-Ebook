@@ -37,6 +37,13 @@
                         <span class="font-extrabold text-xl tracking-wider text-gray-900">P4I<span class="text-blue-600"> Digital Library</span></span>
                     </a>
                 </div>
+                <!-- Return to main P4I site -->
+                <div class="absolute top-8 right-8">
+                    <a href="https://p4ijournal.org" class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-blue-600 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Kembali ke P4I
+                    </a>
+                </div>
 
                 <div class="w-full max-w-md mx-auto mt-12 z-10 relative">
                     {{ $slot }}

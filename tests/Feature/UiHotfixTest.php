@@ -130,4 +130,39 @@ class UiHotfixTest extends TestCase
         $this->assertSame('Jurnal', \App\Models\LibraryItem::getLocalizedType('journal'));
         $this->assertSame('Artikel', \App\Models\LibraryItem::getLocalizedType('article'));
     }
+
+    public function test_public_navigation_contains_main_site_link()
+    {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('https://p4ijournal.org', false);
+        $response->assertSee('Situs Utama P4I');
+    }
+
+    public function test_auth_pages_contain_return_to_p4i_link()
+    {
+        $response = $this->get('/login');
+        $response->assertStatus(200);
+        $response->assertSee('https://p4ijournal.org', false);
+        $response->assertSee('Kembali ke P4I');
+    }
+
+    public function test_forgot_password_page_is_light_and_accessible()
+    {
+        $response = $this->get('/forgot-password');
+        $response->assertStatus(200);
+        $response->assertSee('Lupa Kata Sandi?');
+        $response->assertSee('KIRIM TAUTAN RESET');
+        $response->assertSee('Kembali ke Login');
+        $response->assertSee('https://p4ijournal.org', false);
+        $response->assertSee('color-scheme" content="light only"', false);
+    }
+
+    public function test_password_reset_routes_are_available()
+    {
+        // GET forgot-password
+        $this->get('/forgot-password')->assertStatus(200);
+        // GET reset-password/{token}
+        $this->get('/reset-password/test-token')->assertStatus(200);
+    }
 }

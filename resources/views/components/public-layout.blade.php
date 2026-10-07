@@ -64,6 +64,11 @@
                             
                             <a href="{{ route('submission') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('submission') ? 'text-primary' : '' }}">Penerbitan Buku</a>
                             <a href="{{ route('about') }}" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg {{ request()->routeIs('about') ? 'text-primary' : '' }}">Tentang</a>
+                            <span class="text-border">|</span>
+                            <a href="https://p4ijournal.org" class="px-3 py-2 hover:text-primary transition-colors focus-ring rounded-lg text-text-muted text-xs flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                Situs Utama P4I
+                            </a>
                         </div>
 
                         <!-- Right Actions -->
@@ -160,6 +165,13 @@
                         <a href="{{ route('submission') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Penerbitan Buku</a>
                         <a href="{{ route('about') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-text-primary hover:bg-surface-muted">Tentang</a>
 
+                        <div class="pt-2 mt-1 border-t border-border">
+                            <a href="https://p4ijournal.org" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-text-muted hover:text-primary hover:bg-surface-muted">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                Situs Utama P4I
+                            </a>
+                        </div>
+
                         @guest
                             <div class="pt-4 mt-2 border-t border-border flex flex-col gap-2">
                                 <a href="{{ route('login') }}" class="block px-3 py-2 text-center rounded-lg text-base font-semibold text-text-secondary border border-border">Masuk</a>
@@ -243,6 +255,7 @@
                     <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">
                         <a href="{{ route('about') }}" class="hover:text-primary transition-colors">Tentang P4I</a>
                         <a href="{{ route('contact') }}" class="hover:text-primary transition-colors">Kontak</a>
+                        <a href="https://p4ijournal.org" class="hover:text-primary transition-colors">Situs Utama P4I</a>
                     </div>
                 </div>
             </div>

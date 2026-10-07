@@ -70,6 +70,13 @@
                 <a href="{{ route('admin.users.index') }}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.users.*') ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary' }}">
                     Pengguna
                 </a>
+
+                <div class="pt-4 mt-auto border-t border-border">
+                    <a href="https://p4ijournal.org" class="group flex items-center px-3 py-2 text-xs font-medium rounded-md text-text-muted hover:text-primary hover:bg-surface-hover">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        Situs Utama P4I
+                    </a>
+                </div>
             </nav>
         </div>
 
