@@ -16,3 +16,4 @@ vendor/
 .bench/
 
 *.sql
+.phpunit.result.cache
