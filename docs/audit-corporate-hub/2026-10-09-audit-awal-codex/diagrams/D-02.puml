@@ -1,0 +1,80 @@
+@startuml
+left to right direction
+actor "Pengunjung A01" as Visitor
+actor "Pencari program A02" as Program
+actor "Calon mitra A03" as Partner
+actor "Calon peserta magang A04" as Intern
+actor "Pencari publikasi A05" as Reader
+actor "Sistem eksternal A06" as External
+actor "Crawler A07" as Crawler
+Program --|> Visitor
+Partner --|> Visitor
+Intern --|> Visitor
+Reader --|> Visitor
+rectangle "Corporate Hub" {
+ usecase "UC-01\nMengakses beranda" as U1
+ usecase "UC-02\nMenelusuri profil institusi" as U2
+ usecase "UC-03\nMelihat struktur kelembagaan historis" as U3
+ usecase "UC-04\nMenyaring jejaring ahli" as U4
+ usecase "UC-05\nMemilih informasi program" as U5
+ usecase "UC-06\nMemeriksa layanan konsultasi yang dinonaktifkan" as U6
+ usecase "UC-07\nMengakses jurnal ilmiah" as U7
+ usecase "UC-08\nMenuju P4I E-Book" as U8
+ usecase "UC-09\nMelihat informasi kegiatan" as U9
+ usecase "UC-10\nMenelusuri rekam jejak" as U10
+ usecase "UC-11\nMembuka dan menutup arsip visual" as U11
+ usecase "UC-12\nMelihat informasi magang" as U12
+ usecase "UC-13\nMenghubungi institusi" as U13
+ usecase "UC-14\nMenggunakan menu bantuan global" as U14
+ usecase "UC-15\nMembaca kebijakan privasi" as U15
+ usecase "UC-16\nMembaca syarat penggunaan" as U16
+ usecase "UC-17\nBernavigasi pada perangkat mobile" as U17
+ usecase "UC-18\nMengindeks informasi publik" as U18
+ usecase "UC-19\nMengarahkan URL jurnal lama" as U19
+}
+Visitor --> U1
+Visitor --> U2
+Partner --> U2
+Visitor --> U3
+Partner --> U3
+Visitor --> U4
+Partner --> U4
+Program --> U5
+Partner --> U5
+Program --> U6
+Partner --> U6
+Reader --> U7
+Reader --> U8
+Visitor --> U9
+Program --> U9
+Intern --> U9
+Visitor --> U10
+Partner --> U10
+Visitor --> U11
+Partner --> U11
+Visitor --> U12
+Intern --> U12
+Program --> U13
+Partner --> U13
+Intern --> U13
+Visitor --> U14
+Program --> U14
+Partner --> U14
+Intern --> U14
+Visitor --> U15
+Partner --> U15
+Visitor --> U16
+Partner --> U16
+Visitor --> U17
+Crawler --> U18
+Visitor --> U19
+Reader --> U19
+Crawler --> U19
+U5 --> External : handoff
+U7 --> External : handoff
+U8 --> External : handoff
+U13 --> External : handoff
+U14 --> External : handoff
+U19 --> External : handoff
+note right of U6 : Disabled : 404; bukan layanan aktif
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+start
+:Pengunjung meminta URL;
+:Next.js memilih page dan RootLayout;
+:Import data TS / JSX / media publik;
+if (Route konsultasi disabled?) then (ya)
+ :notFound / HTTP 404;
+ stop
+else (tidak)
+ :Kirim HTML/RSC;
+ :Hydration komponen client;
+endif
+repeat
+ :Baca informasi;
+ if (Pilihan pengguna?) then (interaksi UI)
+  :Filter / carousel / dialog di memori React;
+ elseif (route internal)
+  :Next Link memilih page;
+ else (tautan eksternal)
+  :Browser handoff ke sistem tujuan;
+  stop
+ endif
+repeat while (Masih menelusuri?) is (ya)
+stop
+@enduml

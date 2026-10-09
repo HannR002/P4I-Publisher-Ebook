@@ -1,0 +1,22 @@
+@startuml
+node "Mesin build/development lokal" as Build {
+ artifact "Checkout main + lockfile" as Repo
+ component "Node >=20.9 / npm ci / next build" as Tool
+}
+cloud "Google Fonts
+fonts.googleapis.com / fonts.gstatic.com" as Fonts
+node "Runtime Next.js produksi
+provider belum diverifikasi" as Runtime {
+ artifact ".next build output" as Bundle
+ component "App Router / images / headers / redirects" as Server
+}
+node "Browser pengunjung" as Browser
+cloud "OJS / E-Book / channels / Google" as Ext
+Repo --> Tool
+Tool --> Fonts : fetch Inter; BLOCKED saat audit
+Tool ..> Bundle : build belum berhasil pada audit
+Bundle --> Server
+Browser --> Server : HTTP
+Browser --> Ext : handoff / iframe / analytics
+note bottom of Runtime : Tidak ada deployment dilakukan / server produksi diakses.
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+actor "Pengunjung" as User
+rectangle "P1 Route & render" as P1
+rectangle "P2 Filter/dialog/navigation" as P2
+collections "D1 TS/JSX content files" as D1
+collections "D2 Public assets" as D2
+rectangle "P3 Handoff/iframe/analytics" as P3
+rectangle "Sistem eksternal" as Ext
+User --> P1 : URL request
+D1 --> P1 : konten / konfigurasi
+D2 --> P1 : image metadata / asset
+P1 --> User : HTML/RSC / metadata
+User --> P2 : klik / kategori / keyboard
+D1 --> P2 : data client
+P2 --> User : UI state sementara
+P2 --> P3 : pilihan link
+P1 --> P3 : layout analytics / Maps
+P3 --> Ext : URL / iframe / telemetry
+note bottom of D1 : File sumber, bukan tabel SQL.
+@enduml

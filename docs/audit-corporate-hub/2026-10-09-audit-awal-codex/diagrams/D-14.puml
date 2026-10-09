@@ -1,0 +1,19 @@
+@startuml
+actor Pengunjung as U
+participant Browser as B
+participant "Next.js Corporate Hub" as N
+participant "TS siteConfig" as D
+participant "Aplikasi komunikasi eksternal" as X
+U -> B : buka kontak
+B -> N : GET /kontak
+N -> D : import konfigurasi publik
+D --> N : locations/contact/social
+N --> B : HTML/RSC + anchor
+U -> B : klik kanal email/WhatsApp
+B -> X : buka URL/compose (hanya setelah klik)
+X --> U : aplikasi tujuan
+opt Pengguna melanjutkan
+ U -> X : kirim pesan pada aplikasi tujuan
+end
+note over N : Tidak ada POST pesan / penyimpanan / callback.
+@enduml

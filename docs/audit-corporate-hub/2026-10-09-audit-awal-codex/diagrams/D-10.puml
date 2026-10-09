@@ -1,0 +1,31 @@
+@startuml
+component "RootLayout <<Server>>" as Layout
+component "Navbar <<Client>>" as Nav
+component "Footer <<Server>>" as Foot
+component "ContactLauncher <<Client>>" as Launcher
+component "Home / RekamJejak <<Client>>" as ClientPages
+component "Tentang / Program / Publikasi
+Kegiatan / Magang / Kontak / Kebijakan <<Server>>" as ServerPages
+component "PageHero <<Client>>" as Hero
+component "OrganizationChart <<Server>>" as Org
+component "ExpertCarousel <<Client>>" as Expert
+component "Lightbox <<Client>>" as Light
+component "Data modules TS" as Data
+component "ThemeProvider / ExpertNetwork / HistoricalGallery
+<<Dormant>>" as Dormant
+Layout --> Nav
+Layout --> Foot
+Layout --> Launcher
+Layout --> ClientPages
+Layout --> ServerPages
+ClientPages --> Hero
+ClientPages --> Light
+ServerPages --> Hero
+ServerPages --> Org
+ServerPages --> Expert
+Nav --> Data
+Foot --> Data
+ServerPages --> Data
+ClientPages --> Data
+note bottom of Dormant : Tidak diimport consumer aktif.
+@enduml

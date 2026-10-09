@@ -1,0 +1,30 @@
+@startuml
+rectangle "Root /" as Root
+rectangle "/tentang" as A
+rectangle "/program" as B
+rectangle "/publisher" as C
+rectangle "/rekam-jejak" as D
+rectangle "/kegiatan" as E
+rectangle "/magang" as F
+rectangle "/kontak" as G
+rectangle "/kebijakan-privasi" as H
+rectangle "/syarat-ketentuan" as I
+rectangle "/layanan/konsultasi
+DISABLED 404" as J
+rectangle "Metadata
+sitemap.xml / robots.txt
+opengraph-image / icon.png" as K
+rectangle "Redirect /journal/:path*" as L
+Root --> A
+Root --> B
+Root --> C
+Root --> D
+Root --> E
+Root --> F
+Root --> G
+Root --> H
+Root --> I
+Root ..> J : route direct dormant
+Root --> K
+Root ..> L
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+rectangle "Beranda /" as Home
+rectangle "Tentang /tentang" as About
+rectangle "Program /program" as Program
+rectangle "Publikasi /publisher" as Pub
+rectangle "Kegiatan /kegiatan" as Act
+rectangle "Rekam jejak /rekam-jejak" as Hist
+rectangle "Magang /magang" as Intern
+rectangle "Kontak /kontak" as Contact
+rectangle "Kebijakan / terms (footer)" as Policy
+rectangle "OJS / E-Book (luar)" as External
+rectangle "WhatsApp / email / Maps (luar)" as Channels
+Home --> About
+Home --> Program
+Home --> Pub
+Home --> Act
+Home --> Hist : navbar
+Home --> Contact
+Act --> Intern : CTA
+Hist --> Intern
+Pub --> External
+Program --> Channels : CTA pelatihan
+Contact --> Channels
+Home --> Intern : footer
+Home --> Policy : footer
+@enduml

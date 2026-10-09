@@ -1,0 +1,14 @@
+@startuml
+start
+:Baca preview publikasi;
+if (Pilih jurnal?) then (ya)
+ :Baca activeJournals;
+ :Klik CTA jurnal / OJS;
+ :Browser membuka OJS;
+else (E-Book)
+ :Klik Jelajahi E-Book;
+ :Browser membuka aplikasi Publisher;
+endif
+:Alur editorial / katalog selanjutnya di luar portal;
+stop
+@enduml

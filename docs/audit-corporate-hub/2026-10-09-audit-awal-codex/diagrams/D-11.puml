@@ -1,0 +1,25 @@
+@startuml
+package "Repository" {
+ artifact "data/*.ts + lib/*.ts + JSX" as Content
+ artifact "public/assets" as Assets
+ artifact "next.config / TS / PostCSS" as Config
+ artifact "_source (raw archives)" as Raw
+}
+node "Next.js runtime/build" {
+ component "App Router + Server Components" as Router
+ component "Metadata / redirects / headers" as Meta
+ component "Image optimizer + ImageResponse" as Images
+}
+node "Browser" {
+ component "HTML + RSC hydration" as HTML
+ component "Local React state" as State
+}
+Content --> Router : import
+Assets --> Images
+Config --> Router
+Router --> HTML
+Meta --> HTML
+Images --> HTML
+HTML --> State
+note bottom of Raw : Tracked Git archive; bukan public serving folder.
+@enduml

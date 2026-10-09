@@ -1,0 +1,15 @@
+@startuml
+start
+:Buka /magang;
+:Import internshipProgram;
+:Tampilkan metadata kolektif;
+:Ambil gallery[0] dan slice(1,5);
+:Tampilkan 5 foto dan pernyataan privasi;
+note right
+Consent verified = false.
+Renderer tidak memeriksa consent,
+approval, enabled atau current.
+Tidak ada formulir pendaftaran.
+end note
+stop
+@enduml

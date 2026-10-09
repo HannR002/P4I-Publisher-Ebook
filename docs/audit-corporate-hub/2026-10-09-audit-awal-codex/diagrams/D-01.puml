@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+actor "Pengunjung / persona publik" as V
+actor "Crawler" as C
+rectangle "P4I Corporate Hub
+Next.js portal informasi" as H
+rectangle "OJS" as O
+rectangle "P4I E-Book" as E
+rectangle "WhatsApp / Email / Gmail / Instagram" as M
+rectangle "Google Maps / Analytics" as G
+V --> H : baca / interaksi
+C --> H : halaman / metadata
+H --> O : anchor / redirect
+H --> E : anchor
+H --> M : handoff browser
+H --> G : iframe / telemetry client
+note bottom of H
+Tidak ada login, RBAC,
+API bisnis atau database lokal.
+end note
+@enduml

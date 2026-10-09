@@ -1,0 +1,20 @@
+@startuml
+start
+:Baca timeline dan galeri;
+:Klik kartu media;
+:Set lightboxMedia;
+:Tampilkan dialog dan kunci body scroll;
+:Baca gambar, caption, source;
+if (verification visual-only?) then (ya)
+ :Tampilkan badge Visual Only;
+endif
+:Klik close / backdrop atau tekan Escape;
+:Set lightboxMedia null;
+:Pulihkan overflow body;
+:Kembali ke galeri;
+note right
+Fokus modal belum dipindahkan/trap.
+B06 FAIL.
+end note
+stop
+@enduml

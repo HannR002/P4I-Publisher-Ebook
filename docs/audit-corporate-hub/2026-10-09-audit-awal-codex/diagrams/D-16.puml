@@ -1,0 +1,17 @@
+@startuml
+start
+:Kurator/pengembang memiliki akses repository;
+:Review kelayakan konten dan izin media;
+note right : Review izin adalah governance yang diperlukan; bukan workflow backend yang ditemukan.
+:Edit data TS / teks JSX / aset kurasi;
+:Jalankan typecheck / build / validasi link;
+if (Checks atau izin belum memadai?) then (ya)
+ :Tahan publikasi dan koreksi melalui tugas coding;
+ stop
+else (tidak)
+ :Review perubahan dengan mekanisme tim;
+ :Build/deploy melalui proses operasional terpisah;
+endif
+note right : Tidak ada CMS/login editor/CI deploy yang ditemukan di repository.
+stop
+@enduml

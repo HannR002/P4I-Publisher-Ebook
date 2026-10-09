@@ -1,0 +1,22 @@
+@startuml
+start
+:Buka kontak atau launcher;
+:Tampilkan kanal institusi;
+if (Kanal dipilih?) then (email)
+ :Siapkan mailto / Gmail compose;
+elseif (WhatsApp)
+ :Siapkan wa.me dengan teks awal;
+elseif (lokasi)
+ :Tampilkan alamat / iframe lazy / link Maps;
+else (sosial)
+ :Siapkan link Instagram;
+endif
+:Browser membuka aplikasi atau tab tujuan;
+if (Pengguna menyelesaikan pesan?) then (ya)
+ :Pesan dikirim pada sistem eksternal;
+else (tidak)
+ :Tidak ada pesan dikirim;
+endif
+:Corporate Hub tidak menerima callback/status;
+stop
+@enduml

@@ -1,0 +1,676 @@
+{
+  "commit": "2e6ae709edaa1e21b4b71d15c7f8d43431296f57",
+  "source_register": [
+    {
+      "id": "EV-001",
+      "file": "app/components/contact/ContactLauncher.tsx",
+      "lines": 209,
+      "sha256": "88fd1520307ccd0be2ad0032cea37d8589c2effab3be8d35f256f4384d3faf5d"
+    },
+    {
+      "id": "EV-002",
+      "file": "app/components/experts/ExpertCarousel.tsx",
+      "lines": 199,
+      "sha256": "b4c75c5ad72f21075022161e97e2ce6b34d3d4a5aa9d0b6d1c043c841824a42a"
+    },
+    {
+      "id": "EV-003",
+      "file": "app/components/experts/ExpertNetwork.tsx",
+      "lines": 111,
+      "sha256": "a781740bb542574aef4cf81319699a44cb10385b093080ddbc5204fd8e96e0cf"
+    },
+    {
+      "id": "EV-004",
+      "file": "app/components/gallery/HistoricalGallery.tsx",
+      "lines": 129,
+      "sha256": "bafcc4975facfdd9357a9a441a609f42fdb1d5a2808b5b9edadac0c4032a809b"
+    },
+    {
+      "id": "EV-005",
+      "file": "app/components/layout/Footer.tsx",
+      "lines": 137,
+      "sha256": "f63f801bea6da4d846e089c481e1bba313a08b558f1f4ba67642472108e73adb"
+    },
+    {
+      "id": "EV-006",
+      "file": "app/components/layout/Navbar.tsx",
+      "lines": 123,
+      "sha256": "93d87cabefd7bce3468dac4d2c77dc9632b8739ac56ef40b562c84e88d52dda4"
+    },
+    {
+      "id": "EV-007",
+      "file": "app/components/layout/PageHero.tsx",
+      "lines": 117,
+      "sha256": "59a08db98b7be3c77fafaf476e32970d7993120aab60bf45cdb4820017bba9af"
+    },
+    {
+      "id": "EV-008",
+      "file": "app/components/organization/OrganizationChart.tsx",
+      "lines": 164,
+      "sha256": "3e806abac3673d8fae07da1f7e7ffa91775e6540791dbc55ab6d00a910958c90"
+    },
+    {
+      "id": "EV-009",
+      "file": "app/components/ui/Lightbox.tsx",
+      "lines": 84,
+      "sha256": "7a0e0872a54fc3e85355bd4061128b9913ce02b38c9e7d3f51331d4ab68356e2"
+    },
+    {
+      "id": "EV-010",
+      "file": "app/globals.css",
+      "lines": 30,
+      "sha256": "98e87504e14eafe883a7efc4cc010e80f082e9fa4b397a7346a0d47fc9242186"
+    },
+    {
+      "id": "EV-011",
+      "file": "app/kebijakan-privasi/page.tsx",
+      "lines": 58,
+      "sha256": "c5cfce7bc232e2b2b09ed4edeacbb63ba9b1aca5d0da3f231470729dd757d153"
+    },
+    {
+      "id": "EV-012",
+      "file": "app/kegiatan/page.tsx",
+      "lines": 140,
+      "sha256": "6469c1cadaa83f068499aed6a2b18bf31ce10919a66fa887cd7dc70c5cb45330"
+    },
+    {
+      "id": "EV-013",
+      "file": "app/kontak/page.tsx",
+      "lines": 188,
+      "sha256": "828d9c8551466a647a2611d1192665459f2440056a5abbf9f4404b3c37321e8c"
+    },
+    {
+      "id": "EV-014",
+      "file": "app/layanan/konsultasi/page.tsx",
+      "lines": 16,
+      "sha256": "7db133c1d6527469f5a37133a98020a80905c2c5c8eca0add592421656319a6f"
+    },
+    {
+      "id": "EV-015",
+      "file": "app/layout.tsx",
+      "lines": 108,
+      "sha256": "67f7da280aa3016d112e3ce42e4fcb9a609d53ff0a6027af1eb6579da930f801"
+    },
+    {
+      "id": "EV-016",
+      "file": "app/magang/page.tsx",
+      "lines": 143,
+      "sha256": "9088168a1992b9a8347c285d30db2c8ec93de5ee997e4abe7027e81d2c56eaf2"
+    },
+    {
+      "id": "EV-017",
+      "file": "app/opengraph-image.tsx",
+      "lines": 57,
+      "sha256": "0c9cb3bcb567e2e53bd8e1340abb252d1527c63986641cfa95749aca896e5d4e"
+    },
+    {
+      "id": "EV-018",
+      "file": "app/page.tsx",
+      "lines": 521,
+      "sha256": "12a826367ee5fcb3111d0a42b89c2f518abc9c46c7a4f2fe4890a70303a9f2e9"
+    },
+    {
+      "id": "EV-019",
+      "file": "app/program/page.tsx",
+      "lines": 103,
+      "sha256": "47029d0d432ace3dc6ac01ab74bb9050d85b157b39616e655d9b890f8e218b68"
+    },
+    {
+      "id": "EV-020",
+      "file": "app/publisher/page.tsx",
+      "lines": 124,
+      "sha256": "a809705fd3ebd9faf880c5a024942e8686878a9e0557a9090c20161a8fbdd9ab"
+    },
+    {
+      "id": "EV-021",
+      "file": "app/rekam-jejak/page.tsx",
+      "lines": 247,
+      "sha256": "e8a7200ebe0e41712f18158198762ff8b14972d011022364a4db8ded743b508b"
+    },
+    {
+      "id": "EV-022",
+      "file": "app/robots.ts",
+      "lines": 12,
+      "sha256": "6354675300b49e039f922b97e748cd8436bbfc75b66bad2b3fbcadec697a12a0"
+    },
+    {
+      "id": "EV-023",
+      "file": "app/sitemap.ts",
+      "lines": 24,
+      "sha256": "cef0725b393778d0e725dc4aa5e74bb82074ecbd3d2c4f795d09b1e65954c070"
+    },
+    {
+      "id": "EV-024",
+      "file": "app/syarat-ketentuan/page.tsx",
+      "lines": 61,
+      "sha256": "e81daefe759a5b9540759110d3fb353b4ec9e1f2491358b9e656c2833437916d"
+    },
+    {
+      "id": "EV-025",
+      "file": "app/tentang/page.tsx",
+      "lines": 272,
+      "sha256": "81d6a44226c28dedf353c9947ca31ba5beec6df9d254f18fb8e1281ef3134ee9"
+    },
+    {
+      "id": "EV-026",
+      "file": "components/ThemeProvider.tsx",
+      "lines": 9,
+      "sha256": "d327de57431c454d4628a35964e141b33e31b7aca6f75e6efe30001ff52b344b"
+    },
+    {
+      "id": "EV-027",
+      "file": "data/activities.ts",
+      "lines": 151,
+      "sha256": "cd8b82e289c5c5af6a3d4f93e0d1f6e8143721f0fca9ee3029fef7db83cac06a"
+    },
+    {
+      "id": "EV-028",
+      "file": "data/experts.ts",
+      "lines": 235,
+      "sha256": "e437a77136d3c21916b5f6717362998736ccfbf428ea820d4e880991333b0550"
+    },
+    {
+      "id": "EV-029",
+      "file": "data/historical-media.ts",
+      "lines": 142,
+      "sha256": "bba45a8e768b29c6177c5aeb5344c39e815a7f2521e1130850d0a96b3fc111b4"
+    },
+    {
+      "id": "EV-030",
+      "file": "data/history.ts",
+      "lines": 118,
+      "sha256": "4a4aec23b2dfb8a64f1e58d8807083e76492027105d750406d49002337e7f36d"
+    },
+    {
+      "id": "EV-031",
+      "file": "data/internship.ts",
+      "lines": 61,
+      "sha256": "85915818bd32aeff9d929adeaa610d00a28cc48ae3822ef0d20b7f5417dcba42"
+    },
+    {
+      "id": "EV-032",
+      "file": "data/journals.ts",
+      "lines": 47,
+      "sha256": "f79f757afaf592c23c1eb9a44f9da5fea1c3dc191049b07353beff2778e53425"
+    },
+    {
+      "id": "EV-033",
+      "file": "data/navigation.ts",
+      "lines": 34,
+      "sha256": "8db67b2ee4e6a09b612fe224e5cb524e66fd6a5f43127df197a91be54e8a23af"
+    },
+    {
+      "id": "EV-034",
+      "file": "data/organization.ts",
+      "lines": 85,
+      "sha256": "4daf62b175d24e28c3299ab5c9748f82c7e2ce7135738a19727d52980b109b50"
+    },
+    {
+      "id": "EV-035",
+      "file": "data/platforms.ts",
+      "lines": 39,
+      "sha256": "938a5cd32b4af68ce6ea37fc329ad41f9aff5abf8ba9698201d0c305e567154a"
+    },
+    {
+      "id": "EV-036",
+      "file": "data/programs.ts",
+      "lines": 75,
+      "sha256": "cc01f263c7b430e0a6c77a9a5d997e6f3a8812576f3f073871c3cd39bd4dc3e7"
+    },
+    {
+      "id": "EV-037",
+      "file": "data/timeline.ts",
+      "lines": 42,
+      "sha256": "71818c19c485c5a0dd2570076b3efd8af0b90cf181f3022e15502b9f45f5f5ad"
+    },
+    {
+      "id": "EV-038",
+      "file": "lib/features.ts",
+      "lines": 29,
+      "sha256": "da4ecc2be7c028b059159178e38718a650eb96d565a4c4846a477ef48afbdec0"
+    },
+    {
+      "id": "EV-039",
+      "file": "lib/site-config.ts",
+      "lines": 66,
+      "sha256": "2078769073b2eb8a1bbc3cd800198f1dc3d9be5bfd256e4f4ef7f416baefc150"
+    },
+    {
+      "id": "EV-040",
+      "file": "scripts/process-logo.js",
+      "lines": 47,
+      "sha256": "113e019af7433dac0017892901eb88bc974a86d7996373d147f9de637e27b23a"
+    }
+  ],
+  "versions": [
+    {
+      "name": "@next/third-parties",
+      "declared": "^16.3.0",
+      "locked": "16.3.0",
+      "installed": "16.3.0",
+      "engines": {}
+    },
+    {
+      "name": "framer-motion",
+      "declared": "^13.0.0",
+      "locked": "13.0.0",
+      "installed": "13.0.0",
+      "engines": {}
+    },
+    {
+      "name": "lucide-react",
+      "declared": "^1.30.0",
+      "locked": "1.30.0",
+      "installed": "1.30.0",
+      "engines": {}
+    },
+    {
+      "name": "next",
+      "declared": "^16.3.0",
+      "locked": "16.3.0",
+      "installed": "16.3.0",
+      "engines": {
+        "node": ">=20.9.0"
+      }
+    },
+    {
+      "name": "next-themes",
+      "declared": "^0.4.6",
+      "locked": "0.4.6",
+      "installed": "0.4.6",
+      "engines": {}
+    },
+    {
+      "name": "react",
+      "declared": "^19.2.8",
+      "locked": "19.2.8",
+      "installed": "19.2.8",
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    {
+      "name": "react-dom",
+      "declared": "^19.2.8",
+      "locked": "19.2.8",
+      "installed": "19.2.8",
+      "engines": {}
+    },
+    {
+      "name": "react-icons",
+      "declared": "^5.7.0",
+      "locked": "5.7.0",
+      "installed": "5.7.0",
+      "engines": {}
+    },
+    {
+      "name": "@tailwindcss/postcss",
+      "declared": "^4.3.3",
+      "locked": "4.3.3",
+      "installed": "4.3.3",
+      "engines": {}
+    },
+    {
+      "name": "@types/node",
+      "declared": "26.1.2",
+      "locked": "26.1.2",
+      "installed": "26.1.2",
+      "engines": {}
+    },
+    {
+      "name": "@types/react",
+      "declared": "19.2.18",
+      "locked": "19.2.18",
+      "installed": "19.2.18",
+      "engines": {}
+    },
+    {
+      "name": "autoprefixer",
+      "declared": "^10.5.4",
+      "locked": "10.5.4",
+      "installed": "10.5.4",
+      "engines": {
+        "node": "^10 || ^12 || >=14"
+      }
+    },
+    {
+      "name": "postcss",
+      "declared": "^8.5.26",
+      "locked": "8.5.26",
+      "installed": "8.5.26",
+      "engines": {
+        "node": "^10 || ^12 || >=14"
+      }
+    },
+    {
+      "name": "tailwindcss",
+      "declared": "^3.4.19",
+      "locked": "3.4.19",
+      "installed": "3.4.19",
+      "engines": {
+        "node": ">=14.0.0"
+      }
+    },
+    {
+      "name": "typescript",
+      "declared": "7.0.2",
+      "locked": "7.0.2",
+      "installed": "7.0.2",
+      "engines": {
+        "node": ">=16.20.0"
+      }
+    }
+  ],
+  "route_results": [
+    {
+      "path": "/",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.07,
+      "bytes": 85432,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "P4I — Pusat Pendidikan dan Penelitian Pembangunan Indonesia"
+      ]
+    },
+    {
+      "path": "/tentang",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.68,
+      "bytes": 143060,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [
+        "https://www.p4ijournal.org/tentang"
+      ],
+      "title": [
+        "Tentang P4I | P4I"
+      ]
+    },
+    {
+      "path": "/program",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.39,
+      "bytes": 82477,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [
+        "https://www.p4ijournal.org/program"
+      ],
+      "title": [
+        "Program | P4I"
+      ]
+    },
+    {
+      "path": "/publisher",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.37,
+      "bytes": 61678,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [
+        "https://www.p4ijournal.org/publisher"
+      ],
+      "title": [
+        "Ekosistem Publikasi P4I | P4I"
+      ]
+    },
+    {
+      "path": "/rekam-jejak",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.32,
+      "bytes": 94108,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "P4I — Pusat Pendidikan dan Penelitian Pembangunan Indonesia"
+      ]
+    },
+    {
+      "path": "/magang",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.23,
+      "bytes": 73630,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [
+        "https://www.p4ijournal.org/magang"
+      ],
+      "title": [
+        "Program Magang | P4I"
+      ]
+    },
+    {
+      "path": "/kegiatan",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.37,
+      "bytes": 103369,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [
+        "https://www.p4ijournal.org/kegiatan"
+      ],
+      "title": [
+        "Kegiatan | P4I"
+      ]
+    },
+    {
+      "path": "/kontak",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.37,
+      "bytes": 71255,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "Kontak | P4I"
+      ]
+    },
+    {
+      "path": "/kebijakan-privasi",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.22,
+      "bytes": 50880,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "Kebijakan Privasi | P4I"
+      ]
+    },
+    {
+      "path": "/syarat-ketentuan",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.21,
+      "bytes": 51435,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "Syarat &amp; Ketentuan | P4I"
+      ]
+    },
+    {
+      "path": "/layanan/konsultasi",
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "marker_pass": null,
+      "location": null,
+      "seconds": 0.27,
+      "bytes": 32994,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": [
+        "P4I — Pusat Pendidikan dan Penelitian Pembangunan Indonesia"
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "content_type": "application/xml",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.26,
+      "bytes": 1724,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": []
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "content_type": "text/plain",
+      "marker_pass": true,
+      "location": null,
+      "seconds": 0.1,
+      "bytes": 72,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": []
+    },
+    {
+      "path": "/opengraph-image",
+      "status": 200,
+      "content_type": "image/png",
+      "marker_pass": null,
+      "location": null,
+      "seconds": 0.88,
+      "bytes": 133892,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": []
+    },
+    {
+      "path": "/icon.png",
+      "status": 200,
+      "content_type": "image/png",
+      "marker_pass": null,
+      "location": null,
+      "seconds": 0.01,
+      "bytes": 3931590,
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://maps.google.com https://www.google.com",
+      "x_frame_options": "DENY",
+      "canonical": [],
+      "title": []
+    },
+    {
+      "path": "/journal/test",
+      "status": 308,
+      "content_type": "",
+      "marker_pass": null,
+      "location": "https://journal.p4ijournal.org/journal/test",
+      "seconds": 0.0,
+      "bytes": 43,
+      "csp": null,
+      "x_frame_options": null,
+      "canonical": [],
+      "title": []
+    }
+  ],
+  "browser_results": {
+    "results": [
+      {
+        "id": "B01-home",
+        "status": "PASS",
+        "evidence": "Pusat Pendidikan dan Penelitian Pembangunan Indonesia\nResearch • Education • Development"
+      },
+      {
+        "id": "B02-contact-launcher",
+        "status": "PASS",
+        "evidence": true
+      },
+      {
+        "id": "B03-aria-controls",
+        "status": "FAIL",
+        "error": "aria-controls contact-panel has no target when open"
+      },
+      {
+        "id": "B04-expert-filter",
+        "status": "PASS",
+        "evidence": {
+          "cards": 1
+        }
+      },
+      {
+        "id": "B05-lightbox",
+        "status": "PASS",
+        "evidence": {
+          "opened": true,
+          "escapeCloses": true,
+          "focusInside": false
+        }
+      },
+      {
+        "id": "B06-lightbox-focus",
+        "status": "FAIL",
+        "error": "focus stays outside aria-modal dialog"
+      },
+      {
+        "id": "B07-mobile-menu",
+        "status": "PASS",
+        "evidence": {
+          "path": "/program",
+          "expanded": "false"
+        }
+      },
+      {
+        "id": "B08-mobile-overflow",
+        "status": "PASS",
+        "evidence": {
+          "width": 390,
+          "scroll": 390
+        }
+      },
+      {
+        "id": "B09-internship-images",
+        "status": "PASS",
+        "evidence": {
+          "displayed": 5,
+          "declared": 7,
+          "consentVerified": false
+        }
+      }
+    ],
+    "blockedThirdParties": [
+      "www.googletagmanager.com"
+    ],
+    "pageErrors": []
+  },
+  "tests": "Install/typecheck PASS; build ENVIRONMENT_BLOCKED; local routes PASS expected; browser 7 PASS/2 FAIL; npm audit 19 affected packages"
+}

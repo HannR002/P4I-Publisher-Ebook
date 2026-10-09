@@ -1,0 +1,95 @@
+@startuml
+hide methods
+class SiteConfig <<content>> {
+  name
+  locations[]
+  contact
+  social
+  legal
+  googleAnalyticsId
+}
+class Location <<content>> {
+  id
+  label
+  city
+  address
+  mapQuery
+}
+class ProgramCategory <<content>> {
+  id
+  title
+  icon
+  programs:string[]
+}
+class Journal <<content>> {
+  id
+  url
+  active
+  optional bibliographic metadata
+}
+class Activity <<content>> {
+  id
+  slug
+  historical
+  image?
+  ctaLink?
+}
+class HistoricalMilestone <<content>> {
+  year
+  category
+  themes?
+}
+class HistoricalMedia <<content>> {
+  id
+  image
+  alt
+  caption
+  source
+  verification
+}
+class InternshipProgram <<content>> {
+  current
+  publicationConsentVerified
+  publicationApprovedForWebsite
+  gallery[]
+}
+class InternshipMedia <<content>> {
+  image
+  alt
+  caption
+  source
+  enabled
+}
+class OrganizationStructure <<content>> {
+  period
+  historical
+  pembina[]
+  pengurus
+  pengawas[]
+  bidang[]
+}
+class OrgMember <<content>> {
+  name
+  title?
+  portrait?
+  portraitVerified?
+}
+class Expert <<content>> {
+  id
+  category
+  historical
+  sourceLabel
+  portrait?
+}
+class NavItem <<content>> {
+  label
+  href
+  external?
+}
+SiteConfig "1" *-- "2" Location
+InternshipProgram "1" *-- "7" InternshipMedia
+OrganizationStructure "1" *-- "many" OrgMember
+HistoricalMilestone ..> HistoricalMedia : lookup ID manual pada page
+Activity ..> NavItem : ctaLink URL; bukan FK
+note bottom of Expert : Terpisah dari OrgMember; tidak ada join/foreign key.
+@enduml
