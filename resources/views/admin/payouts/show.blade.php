@@ -90,11 +90,12 @@
                                         <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500">Tanggal</th>
                                         <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500">Buku</th>
                                         <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500">Penjualan</th>
-                                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500">Pendapatan Penulis</th>
+                                        <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500">Alokasi Penarikan</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($ledgers as $ledger)
+                                    @foreach($allocations as $allocation)
+                                        @php($ledger = $allocation->royaltyLedger)
                                         <tr>
                                             <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
                                                 {{ $ledger->created_at->format('d/m/Y') }}
@@ -106,7 +107,7 @@
                                                 Rp {{ number_format($ledger->gross_sale, 0, ',', '.') }}
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-xs text-right font-medium text-green-600">
-                                                Rp {{ number_format($ledger->author_earning, 0, ',', '.') }}
+                                                Rp {{ number_format($allocation->amount, 0, ',', '.') }}
                                             </td>
                                         </tr>
                                     @endforeach

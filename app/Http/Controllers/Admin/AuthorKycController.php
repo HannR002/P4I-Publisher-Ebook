@@ -16,18 +16,18 @@ class AuthorKycController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
-        
+
         $query = Author::with('user');
-        
+
         if ($status !== 'all') {
             $query->where('kyc_status', $status);
         }
-        
+
         // Order pending first, then latest
         $authors = $query->orderByRaw("CASE WHEN kyc_status = 'pending' THEN 1 ELSE 2 END")
-                         ->latest()
-                         ->paginate(15);
-                         
+            ->latest()
+            ->paginate(15);
+
         return view('admin.kyc.index', compact('authors', 'status'));
     }
 
@@ -37,6 +37,7 @@ class AuthorKycController extends Controller
     public function show(Author $author)
     {
         $author->load('user');
+
         return view('admin.kyc.show', compact('author'));
     }
 
@@ -45,11 +46,11 @@ class AuthorKycController extends Controller
      */
     public function streamIdCard(Author $author)
     {
-        if (!$author->id_card_path || !Storage::disk('local')->exists($author->id_card_path)) {
+        if (! $author->id_card_path || ! Storage::disk('local')->exists($author->id_card_path)) {
             abort(404, 'Dokumen KTP tidak ditemukan.');
         }
 
-        return response()->file(storage_path('app/' . $author->id_card_path));
+        return response()->file(Storage::disk('local')->path($author->id_card_path), ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store'])->setPrivate();
     }
 
     /**
@@ -60,7 +61,7 @@ class AuthorKycController extends Controller
         $author->update([
             'kyc_status' => 'verified',
             'verified_at' => now(),
-            'rejection_reason' => null
+            'rejection_reason' => null,
         ]);
 
         Log::info('[KYC_APPROVED] Author verified', ['author_id' => $author->id]);
@@ -74,12 +75,12 @@ class AuthorKycController extends Controller
     public function reject(Request $request, Author $author)
     {
         $request->validate([
-            'rejection_reason' => ['required', 'string', 'min:10']
+            'rejection_reason' => ['required', 'string', 'min:10'],
         ]);
 
         $author->update([
             'kyc_status' => 'rejected',
-            'rejection_reason' => $request->rejection_reason
+            'rejection_reason' => $request->rejection_reason,
         ]);
 
         Log::info('[KYC_REJECTED] Author rejected', ['author_id' => $author->id]);

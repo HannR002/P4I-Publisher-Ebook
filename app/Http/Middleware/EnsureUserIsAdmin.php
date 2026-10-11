@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
@@ -15,8 +16,8 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->is_admin) {
-            \Illuminate\Support\Facades\Log::warning('[SECURITY] Unauthorized admin access attempt', ['ip' => request()->ip(), 'url' => request()->fullUrl(), 'user_id' => \Illuminate\Support\Facades\Auth::id() ?? 'guest']);
+        if (! Auth::check() || ! Auth::user()->is_admin) {
+            Log::warning('[SECURITY] Unauthorized admin access attempt', ['ip' => request()->ip(), 'url' => request()->path(), 'user_id' => Auth::id() ?? 'guest']);
             abort(403, 'Area ini hanya dapat diakses oleh Administrator.');
         }
 

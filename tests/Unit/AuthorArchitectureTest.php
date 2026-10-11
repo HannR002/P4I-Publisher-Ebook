@@ -5,12 +5,14 @@ namespace Tests\Unit;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\BookSubmission;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\PayoutRequest;
 use App\Models\RoyaltyLedger;
 use App\Models\SubmissionReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AuthorArchitectureTest extends TestCase
@@ -56,8 +58,8 @@ class AuthorArchitectureTest extends TestCase
             'id_card_number' => '1234567890123456',
         ]);
 
-        $rawDbValue = \Illuminate\Support\Facades\DB::table('authors')->where('id', $author->id)->value('id_card_number');
-        
+        $rawDbValue = DB::table('authors')->where('id', $author->id)->value('id_card_number');
+
         $this->assertNotEquals('1234567890123456', $rawDbValue);
         $this->assertEquals('1234567890123456', $author->id_card_number);
     }
@@ -98,7 +100,7 @@ class AuthorArchitectureTest extends TestCase
             'is_published' => true,
         ]);
 
-        $order = \App\Models\Order::create([
+        $order = Order::create([
             'id' => 'ORD-1',
             'user_id' => $user->id,
             'gross_amount' => 100,
@@ -106,13 +108,13 @@ class AuthorArchitectureTest extends TestCase
             'payment_type' => 'bank_transfer',
         ]);
 
-        $orderItem1 = \App\Models\OrderItem::create([
+        $orderItem1 = OrderItem::create([
             'order_id' => $order->id,
             'book_id' => $book->id,
             'price' => 100,
         ]);
 
-        $orderItem2 = \App\Models\OrderItem::create([
+        $orderItem2 = OrderItem::create([
             'order_id' => $order->id,
             'book_id' => $book->id,
             'price' => 150,
@@ -128,7 +130,7 @@ class AuthorArchitectureTest extends TestCase
             'status' => 'available',
         ]);
 
-        RoyaltyLedger::create([
+        $withdrawn = RoyaltyLedger::create([
             'author_id' => $author->id,
             'order_item_id' => $orderItem2->id,
             'book_id' => $book->id,
@@ -138,6 +140,8 @@ class AuthorArchitectureTest extends TestCase
             'status' => 'withdrawn',
         ]);
 
+        $payout = PayoutRequest::create(['author_id' => $author->id, 'amount' => 105, 'status' => 'completed']);
+        $payout->allocations()->create(['royalty_ledger_id' => $withdrawn->id, 'amount' => 105]);
         $this->assertEquals(70.00, $author->available_balance);
     }
 }

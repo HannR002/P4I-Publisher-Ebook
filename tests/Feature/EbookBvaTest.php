@@ -2,16 +2,16 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Book;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\BookLicense;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 /**
  * EbookBvaTest — Boundary Value Analysis (BVA) Test Suite
@@ -38,11 +38,11 @@ class EbookBvaTest extends TestCase
     private function makeBook(float $price): Book
     {
         return Book::create([
-            'title'        => 'BVA Test Book ' . Str::random(6),
-            'author'       => 'QA Author',
-            'description'  => 'Test book for BVA suite',
-            'price'        => $price,
-            'file_path'    => 'private_books/fake-test.pdf',
+            'title' => 'BVA Test Book '.Str::random(6),
+            'author' => 'QA Author',
+            'description' => 'Test book for BVA suite',
+            'price' => $price,
+            'file_path' => 'private_books/fake-test.pdf',
             'is_published' => true,
         ]);
     }
@@ -61,17 +61,16 @@ class EbookBvaTest extends TestCase
     private function makeLicense(User $user, Book $book): BookLicense
     {
         return BookLicense::create([
-            'user_id'     => $user->id,
-            'book_id'     => $book->id,
+            'user_id' => $user->id,
+            'book_id' => $book->id,
             'license_key' => (string) Str::uuid(),
-            'status'      => 'active',
+            'status' => 'active',
         ]);
     }
 
     // ─── BVA-01: Checkout harga Rp -1 ───────────────────────────────────────
 
     /**
-     * @test
      * BVA-01: A book with price -1 must be rejected at validation level.
      * The 'price' column is decimal(10,2) with no db-level min, so protection
      * must come from the upload form validation (min:0).
@@ -84,14 +83,14 @@ class EbookBvaTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         // Create a fake PDF file for upload
-        $pdfFile = \Illuminate\Http\UploadedFile::fake()->create('test.pdf', 100, 'application/pdf');
+        $pdfFile = UploadedFile::fake()->create('test.pdf', 100, 'application/pdf');
 
         // Attempt to POST to admin upload with price = -1
         $response = $this->actingAs($admin)->post(route('admin.books.store'), [
-            'title'        => 'Negative Price Book',
-            'author'       => 'Test Author',
-            'price'        => -1,
-            'pdf_file'     => $pdfFile,
+            'title' => 'Negative Price Book',
+            'author' => 'Test Author',
+            'price' => -1,
+            'pdf_file' => $pdfFile,
             'is_published' => false,
         ]);
 
@@ -103,7 +102,6 @@ class EbookBvaTest extends TestCase
     // ─── BVA-02: Checkout harga Rp 0 (free book bypass) ────────────────────
 
     /**
-     * @test
      * BVA-02: A free book (price = 0) must bypass Midtrans entirely.
      * The checkout creates Order with status='success', creates BookLicense
      * immediately, and redirects to /my-library.
@@ -125,9 +123,9 @@ class EbookBvaTest extends TestCase
 
         // Verify Order was created with status 'success' and payment_type 'free'
         $this->assertDatabaseHas('orders', [
-            'user_id'      => $user->id,
+            'user_id' => $user->id,
             'gross_amount' => 0,
-            'status'       => 'success',
+            'status' => 'success',
             'payment_type' => 'free',
         ]);
 
@@ -135,14 +133,13 @@ class EbookBvaTest extends TestCase
         $this->assertDatabaseHas('book_licenses', [
             'user_id' => $user->id,
             'book_id' => $book->id,
-            'status'  => 'active',
+            'status' => 'active',
         ]);
     }
 
     // ─── BVA-03: Checkout harga Rp 10.000 (paid flow boundary) ─────────────
 
     /**
-     * @test
      * BVA-03: A paid book (price = 10000) must trigger the Midtrans code path.
      * Since we cannot call real Midtrans in tests, we mock Snap::getSnapToken()
      * and verify the system attempts the API call, then rolls back (or throws)
@@ -168,7 +165,7 @@ class EbookBvaTest extends TestCase
 
         // No 'free' order must exist (free bypass would have payment_type='free')
         $this->assertDatabaseMissing('orders', [
-            'user_id'      => $user->id,
+            'user_id' => $user->id,
             'payment_type' => 'free',
         ]);
     }
@@ -176,7 +173,6 @@ class EbookBvaTest extends TestCase
     // ─── BVA-04: Checkout harga Rp 10.001 (precision test) ─────────────────
 
     /**
-     * @test
      * BVA-04: A book with price = 10001 must also take the paid (Midtrans) path.
      * Verifies that the boundary at 0/1 is clean and 10001 does NOT trigger
      * the free bypass (grossAmount != 0).
@@ -198,7 +194,7 @@ class EbookBvaTest extends TestCase
 
         // No 'free' order should exist
         $this->assertDatabaseMissing('orders', [
-            'user_id'      => $user->id,
+            'user_id' => $user->id,
             'payment_type' => 'free',
         ]);
     }
@@ -206,18 +202,17 @@ class EbookBvaTest extends TestCase
     // ─── BVA-05: DRM URL menit ke-14 (masih valid) ──────────────────────────
 
     /**
-     * @test
      * BVA-05: A signed DRM stream URL accessed at exactly minute 14 must
      * return HTTP 200 (still within 15-minute window).
      */
     public function test_bva05_drm_url_at_minute_14_returns_200(): void
     {
-        $user    = $this->makeUser();
-        $book    = $this->makeBook(50000);
+        $user = $this->makeUser();
+        $book = $this->makeBook(50000);
         $license = $this->makeLicense($user, $book);
 
         // Create a fake PDF file so the stream actually has something to serve
-        \Illuminate\Support\Facades\Storage::disk('local')
+        Storage::disk('local')
             ->put('private_books/fake-test.pdf', '%PDF-1.4 fake content');
 
         // Generate the signed URL at T=0
@@ -237,13 +232,12 @@ class EbookBvaTest extends TestCase
         $response->assertHeader('Content-Type', 'application/pdf');
 
         // Cleanup
-        \Illuminate\Support\Facades\Storage::disk('local')->delete('private_books/fake-test.pdf');
+        Storage::disk('local')->delete('private_books/fake-test.pdf');
     }
 
     // ─── BVA-06: DRM URL menit ke-15:00 (batas absolut) ────────────────────
 
     /**
-     * @test
      * BVA-06: A signed DRM URL accessed at exactly the 15-minute mark.
      * Laravel's `temporarySignedRoute(now()->addMinutes(15))` expires AT that
      * timestamp. At T+15:00 exactly, the URL is expired (exclusive boundary).
@@ -251,17 +245,17 @@ class EbookBvaTest extends TestCase
      */
     public function test_bva06_drm_url_at_exactly_minute_15_returns_4xx(): void
     {
-        $user    = $this->makeUser();
-        $book    = $this->makeBook(50000);
+        $user = $this->makeUser();
+        $book = $this->makeBook(50000);
         $license = $this->makeLicense($user, $book);
 
         // Create a fake PDF file so file-not-found doesn't interfere
-        \Illuminate\Support\Facades\Storage::disk('local')
+        Storage::disk('local')
             ->put('private_books/fake-test.pdf', '%PDF-1.4 fake content for bva06');
 
         // Generate URL at T=0 with 15-minute expiry
         $generatedAt = now();
-        $signedUrl   = URL::temporarySignedRoute(
+        $signedUrl = URL::temporarySignedRoute(
             'drm.stream',
             $generatedAt->copy()->addMinutes(15),
             ['license_key' => $license->license_key, 'ip' => '127.0.0.1']
@@ -282,25 +276,24 @@ class EbookBvaTest extends TestCase
         $response->assertHeader('Content-Type', 'application/pdf');
 
         // Cleanup
-        \Illuminate\Support\Facades\Storage::disk('local')->delete('private_books/fake-test.pdf');
+        Storage::disk('local')->delete('private_books/fake-test.pdf');
     }
 
     // ─── BVA-07: DRM URL menit ke-15:01 (sudah kadaluarsa) ─────────────────
 
     /**
-     * @test
      * BVA-07: A signed DRM URL accessed 1 second AFTER the 15-minute window
      * must be rejected with 403 Forbidden / 401 Unauthorized.
      */
     public function test_bva07_drm_url_expired_at_minute_15_01_returns_4xx(): void
     {
-        $user    = $this->makeUser();
-        $book    = $this->makeBook(50000);
+        $user = $this->makeUser();
+        $book = $this->makeBook(50000);
         $license = $this->makeLicense($user, $book);
 
         // Generate URL at T=0
         $generatedAt = now();
-        $signedUrl   = URL::temporarySignedRoute(
+        $signedUrl = URL::temporarySignedRoute(
             'drm.stream',
             $generatedAt->copy()->addMinutes(15),
             ['license_key' => $license->license_key, 'ip' => '127.0.0.1']
@@ -318,14 +311,13 @@ class EbookBvaTest extends TestCase
     // ─── BONUS: BUG-03 Duplicate Purchase Guard ─────────────────────────────
 
     /**
-     * @test
      * BUG-03 guard: User attempting to repurchase an already-owned book
      * must receive a validation error, not be charged again.
      */
     public function test_bug03_repurchase_blocked_with_validation_error(): void
     {
-        $user    = $this->makeUser();
-        $book    = $this->makeBook(0.00); // Free so checkout would otherwise succeed
+        $user = $this->makeUser();
+        $book = $this->makeBook(0.00); // Free so checkout would otherwise succeed
         $license = $this->makeLicense($user, $book);
 
         $response = $this->actingAs($user)->post(route('checkout.store'), [

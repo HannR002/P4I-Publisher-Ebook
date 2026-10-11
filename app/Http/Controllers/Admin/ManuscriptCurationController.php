@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookSubmission;
 use App\Models\SubmissionReview;
+use App\Services\LibraryItemSynchronizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,18 +20,18 @@ class ManuscriptCurationController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
-        
+
         $query = BookSubmission::with(['author.user', 'category']);
-        
+
         if ($status !== 'all') {
             $query->where('status', $status);
         }
-        
+
         // Order by latest
         $submissions = $query->orderByRaw("CASE WHEN status = 'submitted' THEN 1 WHEN status = 'revision_requested' THEN 2 ELSE 3 END")
-                             ->latest()
-                             ->paginate(15);
-                             
+            ->latest()
+            ->paginate(15);
+
         return view('admin.submissions.index', compact('submissions', 'status'));
     }
 
@@ -43,9 +44,9 @@ class ManuscriptCurationController extends Controller
         if ($submission->status === 'submitted') {
             $submission->update(['status' => 'in_review']);
         }
-        
+
         $submission->load(['author.user', 'category', 'reviews.reviewer']);
-        
+
         return view('admin.submissions.show', compact('submission'));
     }
 
@@ -54,11 +55,11 @@ class ManuscriptCurationController extends Controller
      */
     public function streamManuscript(BookSubmission $submission)
     {
-        if (!$submission->manuscript_path || !Storage::disk('local')->exists($submission->manuscript_path)) {
+        if (! $submission->manuscript_path || ! Storage::disk('local')->exists($submission->manuscript_path)) {
             abort(404, 'Dokumen Naskah tidak ditemukan.');
         }
 
-        return response()->file(storage_path('app/' . $submission->manuscript_path));
+        return response()->file(Storage::disk('local')->path($submission->manuscript_path), ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store'])->setPrivate();
     }
 
     /**
@@ -67,7 +68,7 @@ class ManuscriptCurationController extends Controller
     public function requestRevision(Request $request, BookSubmission $submission)
     {
         $request->validate([
-            'feedback' => ['required', 'string', 'min:10']
+            'feedback' => ['required', 'string', 'min:10'],
         ]);
 
         DB::transaction(function () use ($request, $submission) {
@@ -76,7 +77,7 @@ class ManuscriptCurationController extends Controller
                 'reviewer_id' => auth()->id(),
                 'feedback' => $request->feedback,
                 'notes' => $request->feedback,
-                'action' => 'request_revision'
+                'action' => 'request_revision',
             ]);
 
             $submission->update(['status' => 'revision_requested']);
@@ -91,7 +92,7 @@ class ManuscriptCurationController extends Controller
     public function reject(Request $request, BookSubmission $submission)
     {
         $request->validate([
-            'feedback' => ['required', 'string', 'min:10']
+            'feedback' => ['required', 'string', 'min:10'],
         ]);
 
         DB::transaction(function () use ($request, $submission) {
@@ -100,7 +101,7 @@ class ManuscriptCurationController extends Controller
                 'reviewer_id' => auth()->id(),
                 'feedback' => $request->feedback,
                 'notes' => $request->feedback,
-                'action' => 'reject'
+                'action' => 'reject',
             ]);
 
             $submission->update(['status' => 'rejected']);
@@ -115,13 +116,13 @@ class ManuscriptCurationController extends Controller
     public function approveAndPublish(Request $request, BookSubmission $submission)
     {
         $request->validate([
-            'final_price' => ['required', 'numeric', 'min:0']
+            'final_price' => ['required', 'numeric', 'min:0'],
         ]);
 
         DB::transaction(function () use ($request, $submission) {
             // 1. Move PDF file to private_books
-            $newFileName = Str::random(40) . '.pdf';
-            Storage::disk('local')->copy($submission->manuscript_path, 'private/private_books/' . $newFileName);
+            $newFileName = Str::random(40).'.pdf';
+            Storage::disk('local')->copy($submission->manuscript_path, 'private/private_books/'.$newFileName);
 
             // 2. Create Book record
             $book = Book::create([
@@ -130,7 +131,7 @@ class ManuscriptCurationController extends Controller
                 'author_id' => $submission->author->id,
                 'price' => $request->final_price,
                 'description' => $submission->synopsis,
-                'file_path' => 'private/private_books/' . $newFileName,
+                'file_path' => 'private/private_books/'.$newFileName,
                 'cover_image_path' => $submission->cover_preview_path,
                 'is_published' => true,
             ]);
@@ -146,7 +147,7 @@ class ManuscriptCurationController extends Controller
             } elseif (\Schema::hasColumn('books', 'category_id')) {
                 $book->update(['category_id' => $submission->category_id]);
             }
-            app(\App\Services\LibraryItemSynchronizer::class)->sync($book);
+            app(LibraryItemSynchronizer::class)->sync($book);
 
             // 4. Create review log
             SubmissionReview::create([
@@ -154,13 +155,13 @@ class ManuscriptCurationController extends Controller
                 'reviewer_id' => auth()->id(),
                 'feedback' => 'Naskah disetujui dan diterbitkan.',
                 'notes' => 'Naskah disetujui dan diterbitkan.',
-                'action' => 'approve'
+                'action' => 'approve',
             ]);
 
             // 5. Update submission
             $submission->update([
                 'status' => 'published',
-                'book_id' => $book->id
+                'book_id' => $book->id,
             ]);
         });
 

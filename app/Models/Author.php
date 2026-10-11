@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedFinancialString;
+use App\Services\RoyaltyBalanceService;
 use Illuminate\Database\Eloquent\Model;
 
 class Author extends Model
@@ -20,7 +22,12 @@ class Author extends Model
         'verified_at',
     ];
 
+    protected $hidden = ['bank_name', 'bank_account', 'bank_holder_name', 'id_card_number', 'id_card_path'];
+
     protected $casts = [
+        'bank_name' => EncryptedFinancialString::class,
+        'bank_account' => EncryptedFinancialString::class,
+        'bank_holder_name' => EncryptedFinancialString::class,
         'id_card_number' => 'encrypted',
         'verified_at' => 'datetime',
     ];
@@ -57,6 +64,6 @@ class Author extends Model
 
     public function getAvailableBalanceAttribute()
     {
-        return $this->royaltyLedgers()->where('status', 'available')->sum('author_earning');
+        return app(RoyaltyBalanceService::class)->balances($this->id)['available'];
     }
 }

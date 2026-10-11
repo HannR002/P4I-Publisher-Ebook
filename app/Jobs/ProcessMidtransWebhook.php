@@ -2,121 +2,64 @@
 
 namespace App\Jobs;
 
+use App\Models\BookLicense;
+use App\Models\Order;
+use App\Services\OrderPaidOutbox;
+use App\Support\Money;
+use DomainException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Models\Order;
-use App\Models\BookLicense;
 
 class ProcessMidtransWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $payload;
+    public int $tries = 3;
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(array $payload)
-    {
-        $this->payload = $payload;
-    }
+    public function __construct(protected array $payload) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         if (! config('features.midtrans')) {
-            Log::notice('[Midtrans Webhook Job] Skipped because Midtrans is disabled.');
             return;
         }
-
-        $orderId           = $this->payload['order_id'];
-        $transactionStatus = $this->payload['transaction_status'];
-        $paymentType       = $this->payload['payment_type'] ?? null;
-
-        DB::beginTransaction();
-        try {
-            $order = Order::with('items')->where('id', $orderId)->lockForUpdate()->first();
-
-            if (!$order) {
-                DB::rollBack();
-                if (str_starts_with($orderId, 'payment_notif_test_')) {
-                    Log::channel('single')->info('[Midtrans Webhook Job] ✓ Test notification dari dashboard Midtrans — OK', [
-                        'order_id' => $orderId,
-                    ]);
-                    return;
-                }
-                Log::channel('single')->error('[Midtrans Webhook Job] ✗ Order tidak ditemukan', ['order_id' => $orderId]);
+        DB::transaction(function () {
+            $order = Order::whereKey($this->payload['order_id'])->lockForUpdate()->first();
+            if (! $order) {
                 return;
             }
-
-            if ($order->status === 'success') {
-                DB::rollBack();
-                Log::channel('single')->info('[Midtrans Webhook Job] ↩ Idempotency: order sudah success, skip', ['order_id' => $orderId]);
+            if (! isset($this->payload['gross_amount']) || Money::minor($this->payload['gross_amount']) !== Money::minor($order->gross_amount)) {
+                throw new DomainException('Payment amount does not match the order.');
+            }
+            if ($order->status !== 'pending') {
                 return;
             }
-
-            if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
-                $order->status = 'success';
-
-                foreach ($order->items as $item) {
-                    $lic = BookLicense::firstOrCreate(
-                        [
-                            'user_id' => $order->user_id,
-                            'book_id' => $item->book_id,
-                        ],
-                        [
-                            'order_id'    => $order->id,
-                            'license_key' => (string) Str::uuid(),
-                            'status'      => 'active',
-                        ]
-                    );
-
-                    Log::channel('single')->info('[Midtrans Webhook Job] BookLicense', [
-                        'book_id'              => $item->book_id,
-                        'license_key'          => $lic->license_key,
-                        'was_recently_created' => $lic->wasRecentlyCreated,
-                        'status'               => $lic->status,
+            $status = $this->payload['transaction_status'];
+            $fraud = $this->payload['fraud_status'] ?? null;
+            $paid = ($status === 'settlement' && in_array($fraud, [null, 'accept'], true))
+                || ($status === 'capture' && $fraud === 'accept');
+            if ($paid && ($this->payload['status_code'] ?? null) !== '200') {
+                throw new DomainException('Payment success status is inconsistent.');
+            }
+            if ($paid) {
+                $order->update(['status' => 'success', 'payment_type' => $this->payload['payment_type'] ?? null]);
+                foreach ($order->items()->get() as $item) {
+                    BookLicense::firstOrCreate([
+                        'user_id' => $order->user_id, 'book_id' => $item->book_id,
+                    ], [
+                        'order_id' => $order->id, 'license_key' => (string) Str::uuid(), 'status' => 'active',
                     ]);
                 }
-                
-                event(new \App\Events\OrderPaidEvent($order));
-            } elseif (in_array($transactionStatus, ['cancel', 'deny'])) {
-                $order->status = 'failed';
-            } elseif ($transactionStatus === 'expire') {
-                $order->status = 'expired';
-            } elseif ($transactionStatus === 'pending') {
-                $order->status = 'pending';
+                // Persist delivery inside the sale transaction; publish after commit.
+                app(OrderPaidOutbox::class)->record($order);
+            } elseif (in_array($status, ['cancel', 'deny', 'expire'], true)) {
+                $order->update(['status' => $status === 'expire' ? 'expired' : 'failed']);
             }
-
-            if ($paymentType) {
-                $order->payment_type = $paymentType;
-            }
-            $order->save();
-
-            DB::commit();
-
-            Log::channel('single')->info('[Midtrans Webhook Job] ✓ Order selesai diproses', [
-                'order_id'     => $order->id,
-                'status_baru'  => $order->status,
-                'payment_type' => $order->payment_type,
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::channel('single')->error('[Midtrans Webhook Job] ✗ Exception', [
-                'order_id' => $orderId,
-                'error'    => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
-            ]);
-            throw $e;
-        }
+        }, 3);
     }
 }

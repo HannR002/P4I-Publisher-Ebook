@@ -3,173 +3,152 @@
 namespace App\Services;
 
 use App\Models\Author;
+use App\Models\PayoutAllocation;
+use App\Models\PayoutAudit;
 use App\Models\PayoutRequest;
 use App\Models\RoyaltyLedger;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Models\User;
+use App\Support\Money;
 use DomainException;
+use Illuminate\Support\Facades\DB;
 
 class PayoutService
 {
-    /**
-     * Request a new payout for an author.
-     * Uses pessimistic locking to prevent double-spending.
-     *
-     * @param Author $author
-     * @param float $amount
-     * @return PayoutRequest
-     * @throws DomainException
-     */
-    public function requestPayout(Author $author, float $amount): PayoutRequest
+    public function requestPayout(Author $author, int|float|string $amount, string $idempotencyKey): PayoutRequest
     {
-        if (! config('features.payout')) throw new DomainException('Fitur payout tidak aktif.');
-        if (!$author->isVerified()) {
-            throw new DomainException("Akun belum terverifikasi KYC.");
+        $this->ensureEnabled();
+        $minor = Money::minor($amount);
+        if ($minor < 10000000) {
+            throw new DomainException('Batas minimum penarikan adalah Rp 100.000.');
+        }
+        if (! preg_match('/\A[a-zA-Z0-9_-]{16,100}\z/', $idempotencyKey)) {
+            throw new DomainException('Kunci permohonan payout tidak valid.');
         }
 
-        if ($amount < 100000) {
-            throw new DomainException("Batas minimum penarikan adalah Rp 100.000.");
-        }
+        return DB::transaction(function () use ($author, $minor, $idempotencyKey) {
+            // All payout operations lock the author first, then payout/ledgers.
+            // This also serializes requests when an author has no ledger rows.
+            $lockedAuthor = Author::whereKey($author->id)->lockForUpdate()->firstOrFail();
+            $existing = PayoutRequest::where('author_id', $author->id)->where('idempotency_key', $idempotencyKey)->first();
+            if ($existing) {
+                if (Money::minor($existing->amount) !== $minor) {
+                    throw new DomainException('Kunci permohonan sudah digunakan untuk nominal berbeda.');
+                }
 
-        if (empty($author->bank_name) || empty($author->bank_account) || empty($author->bank_holder_name)) {
-            throw new DomainException("Data rekening bank tidak lengkap. Harap lengkapi profil Anda.");
-        }
+                return $existing;
+            }
+            if (! $lockedAuthor->isVerified() || ! $lockedAuthor->user->is_active) {
+                throw new DomainException('Akun belum terverifikasi KYC atau tidak aktif.');
+            }
+            foreach (['bank_name', 'bank_account', 'bank_holder_name'] as $field) {
+                if (blank($lockedAuthor->$field)) {
+                    throw new DomainException('Data rekening bank tidak lengkap.');
+                }
+            }
 
-        return DB::transaction(function () use ($author, $amount) {
-            // Lock the rows to prevent race conditions (double spending)
-            $availableLedgers = RoyaltyLedger::where('author_id', $author->id)
-                ->where('status', 'available')
-                ->orderBy('created_at', 'asc')
-                ->lockForUpdate()
-                ->get();
-
-            $totalAvailable = $availableLedgers->sum('author_earning');
-
-            if ($amount > $totalAvailable) {
-                throw new DomainException("Saldo tersedia tidak mencukupi.");
+            $ledgers = RoyaltyLedger::where('author_id', $author->id)->orderBy('created_at')->orderBy('id')->lockForUpdate()->get();
+            $remaining = [];
+            $total = 0;
+            foreach ($ledgers as $ledger) {
+                $consumed = PayoutAllocation::where('royalty_ledger_id', $ledger->id)
+                    ->whereHas('payoutRequest', fn ($q) => $q->whereIn('status', ['requested', 'processing', 'completed']))
+                    ->get()->sum(fn ($allocation) => Money::minor($allocation->amount));
+                $available = Money::minor($ledger->author_earning) - $consumed;
+                if ($available < 0) {
+                    throw new DomainException('Rekonsiliasi ledger gagal; proses payout dihentikan.');
+                }
+                $remaining[$ledger->id] = $available;
+                $total += $available;
+            }
+            if ($minor > $total) {
+                throw new DomainException('Saldo tersedia tidak mencukupi.');
             }
 
             $payout = PayoutRequest::create([
-                'id' => (string) Str::ulid(),
                 'author_id' => $author->id,
-                'amount' => $amount,
-                'bank_name_snapshot' => $author->bank_name,
-                'bank_account_snapshot' => $author->bank_account,
-                'bank_holder_name_snapshot' => $author->bank_holder_name,
+                'idempotency_key' => $idempotencyKey,
+                'amount' => Money::decimal($minor),
+                'bank_name_snapshot' => $lockedAuthor->bank_name,
+                'bank_account_snapshot' => $lockedAuthor->bank_account,
+                'bank_holder_name_snapshot' => $lockedAuthor->bank_holder_name,
                 'status' => 'requested',
             ]);
-
-            $remainingAmountToDeduct = $amount;
-
-            // FIFO allocation
-            foreach ($availableLedgers as $ledger) {
-                if ($remainingAmountToDeduct <= 0) {
+            $toAllocate = $minor;
+            foreach ($ledgers as $ledger) {
+                $take = min($toAllocate, $remaining[$ledger->id]);
+                if ($take > 0) {
+                    $payout->allocations()->create(['royalty_ledger_id' => $ledger->id, 'amount' => Money::decimal($take)]);
+                    $toAllocate -= $take;
+                }
+                if ($toAllocate === 0) {
                     break;
                 }
-
-                $ledgerAmount = $ledger->author_earning;
-
-                if ($remainingAmountToDeduct >= $ledgerAmount) {
-                    // Fully allocate this ledger
-                    $ledger->update([
-                        'status' => 'pending',
-                        'payout_request_id' => $payout->id,
-                    ]);
-                    $remainingAmountToDeduct -= $ledgerAmount;
-                } else {
-                    // Partially allocate this ledger? Wait, ledgers are atomic per sale.
-                    // The requirements say "Kurangi nilai akumulasi hingga $amount terpenuhi."
-                    // If we can't split a ledger, we just mark it as pending anyway, which means
-                    // the withdrawn amount covers this ledger. But wait, if $amount doesn't exactly match the sum of ledgers,
-                    // we'll have a problem because ledgers represent a specific earning. 
-                    // To handle exact amounts, maybe we should just mark ledgers as pending until we cover the amount.
-                    // Wait, if remainingAmountToDeduct < ledgerAmount, and we mark it as pending, it means we are withdrawing MORE than requested?
-                    // Usually in such systems, the user withdraws EXACTLY the sum of some ledgers, or we split the ledger.
-                    // But splitting ledger is complex. Let's look at the instruction:
-                    // "Kurangi nilai akumulasi hingga `$amount` terpenuhi."
-                    // I will just mark the ledger as pending. The remaining ledger value will be part of this payout.
-                    // Wait! If they request 100,000, and ledgers are 75,000 and 50,000.
-                    // If we mark both as pending, the total in payout is 100,000, but ledgers marked pending is 125,000.
-                    // That would mean 25,000 is lost!
-                    // Let's implement ledger splitting or just take the exact amount if possible.
-                    // Actually, a simpler way is: split the ledger into two: one for the requested amount, one for the remainder.
-                    $ledger->update([
-                        'status' => 'pending',
-                        'payout_request_id' => $payout->id,
-                        'author_earning' => $remainingAmountToDeduct,
-                        'gross_sale' => $ledger->gross_sale * ($remainingAmountToDeduct / $ledgerAmount), // Approximation
-                        'platform_earning' => $ledger->platform_earning * ($remainingAmountToDeduct / $ledgerAmount),
-                    ]);
-
-                    $remainder = $ledgerAmount - $remainingAmountToDeduct;
-                    
-                    // Create a new ledger for the remainder
-                    $newLedger = $ledger->replicate();
-                    $newLedger->status = 'available';
-                    $newLedger->payout_request_id = null;
-                    $newLedger->author_earning = $remainder;
-                    $newLedger->gross_sale = $ledger->gross_sale - $ledger->gross_sale * ($remainingAmountToDeduct / $ledgerAmount);
-                    $newLedger->platform_earning = $ledger->platform_earning - $ledger->platform_earning * ($remainingAmountToDeduct / $ledgerAmount);
-                    $newLedger->save();
-
-                    $remainingAmountToDeduct = 0;
-                }
             }
+            PayoutAudit::create(['payout_request_id' => $payout->id, 'action' => 'requested', 'actor_id' => $lockedAuthor->user_id, 'occurred_at' => now()]);
 
             return $payout;
-        });
+        }, 3);
     }
 
-    /**
-     * Reject a payout request.
-     *
-     * @param PayoutRequest $payout
-     * @param string $reason
-     * @param int $adminId
-     * @return void
-     */
     public function rejectPayout(PayoutRequest $payout, string $reason, int $adminId): void
     {
-        if (! config('features.payout')) throw new DomainException('Fitur payout tidak aktif.');
-        DB::transaction(function () use ($payout, $reason, $adminId) {
-            RoyaltyLedger::where('payout_request_id', $payout->id)->update([
-                'status' => 'available',
-                'payout_request_id' => null,
-            ]);
-
-            $payout->update([
-                'status' => 'rejected',
-                'admin_notes' => $reason,
-                'processed_by' => $adminId,
-                'processed_at' => now(),
-            ]);
-        });
+        if (strlen(trim($reason)) < 5 || mb_strlen($reason) > 1000) {
+            throw new DomainException('Alasan penolakan harus 5–1000 karakter.');
+        }
+        $this->transition($payout, 'rejected', $adminId, ['admin_notes' => $reason]);
     }
 
-    /**
-     * Complete a payout request.
-     *
-     * @param PayoutRequest $payout
-     * @param string $refNumber
-     * @param string|null $proofPath
-     * @param int $adminId
-     * @return void
-     */
     public function completePayout(PayoutRequest $payout, string $refNumber, ?string $proofPath, int $adminId): void
     {
-        if (! config('features.payout')) throw new DomainException('Fitur payout tidak aktif.');
-        DB::transaction(function () use ($payout, $refNumber, $proofPath, $adminId) {
-            RoyaltyLedger::where('payout_request_id', $payout->id)->update([
-                'status' => 'withdrawn',
-            ]);
+        if (blank($refNumber) || mb_strlen($refNumber) > 100) {
+            throw new DomainException('Nomor referensi transfer tidak valid.');
+        }
+        $this->transition($payout, 'completed', $adminId, ['reference_number' => $refNumber, 'transfer_proof_path' => $proofPath]);
+    }
 
-            $payout->update([
-                'status' => 'completed',
-                'reference_number' => $refNumber,
-                'transfer_proof_path' => $proofPath,
-                'processed_by' => $adminId,
-                'processed_at' => now(),
-            ]);
-        });
+    private function transition(PayoutRequest $payout, string $target, int $adminId, array $details): void
+    {
+        $this->ensureEnabled();
+        DB::transaction(function () use ($payout, $target, $adminId, $details) {
+            Author::whereKey($payout->author_id)->lockForUpdate()->firstOrFail();
+            $admin = User::whereKey($adminId)->firstOrFail();
+            if (! $admin->is_admin || ! $admin->is_active) {
+                throw new DomainException('Pemrosesan payout hanya untuk administrator aktif.');
+            }
+            $locked = PayoutRequest::whereKey($payout->id)->lockForUpdate()->firstOrFail();
+            if ($locked->status === $target) {
+                foreach ($details as $field => $value) {
+                    if ($value !== $locked->$field) {
+                        throw new DomainException('Payout telah diproses dengan data berbeda.');
+                    }
+                }
+
+                return;
+            }
+            if (! in_array($locked->status, ['requested', 'processing'], true)) {
+                throw new DomainException('Transisi status payout tidak valid.');
+            }
+            $allocations = $locked->allocations()->lockForUpdate()->get();
+            if ($allocations->sum(fn ($a) => Money::minor($a->amount)) !== Money::minor($locked->amount)) {
+                throw new DomainException('Rekonsiliasi alokasi payout gagal.');
+            }
+            foreach ($allocations as $allocation) {
+                $ledger = RoyaltyLedger::whereKey($allocation->royalty_ledger_id)->lockForUpdate()->firstOrFail();
+                $consumed = $ledger->allocations()->whereHas('payoutRequest', fn ($q) => $q->whereIn('status', ['requested', 'processing', 'completed']))
+                    ->get()->sum(fn ($a) => Money::minor($a->amount));
+                if ($ledger->author_id !== $locked->author_id || $consumed > Money::minor($ledger->author_earning)) {
+                    throw new DomainException('Integritas ledger payout gagal.');
+                }
+            }
+            $locked->update($details + ['status' => $target, 'processed_by' => $adminId, 'processed_at' => now()]);
+            PayoutAudit::create(['payout_request_id' => $locked->id, 'action' => $target, 'actor_id' => $adminId, 'occurred_at' => now()]);
+        }, 3);
+    }
+
+    private function ensureEnabled(): void
+    {
+        if (! config('features.payout')) {
+            throw new DomainException('Fitur payout tidak aktif.');
+        }
     }
 }

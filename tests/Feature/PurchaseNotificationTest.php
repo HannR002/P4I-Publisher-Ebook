@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Events\OrderPaidEvent;
+use App\Jobs\ProcessMidtransWebhook;
+use App\Listeners\SendPurchaseConfirmationListener;
 use App\Mail\PurchaseConfirmationMail;
 use App\Models\Book;
 use App\Models\Order;
@@ -22,36 +24,39 @@ class PurchaseNotificationTest extends TestCase
 
         $user = User::factory()->create();
         $book = Book::create([
-            'title'        => 'Test Book',
-            'author'       => 'QA Author',
-            'description'  => 'Test description',
-            'price'        => 50000,
-            'file_path'    => 'dummy.pdf',
+            'title' => 'Test Book',
+            'author' => 'QA Author',
+            'description' => 'Test description',
+            'price' => 50000,
+            'file_path' => 'dummy.pdf',
             'is_published' => true,
         ]);
 
         $order = Order::create([
-            'id'           => 'ORD-TEST-123',
-            'user_id'      => $user->id,
+            'id' => 'ORD-TEST-123',
+            'user_id' => $user->id,
             'gross_amount' => 50000,
-            'status'       => 'pending',
+            'status' => 'pending',
             'payment_type' => 'bank_transfer',
         ]);
 
         $order->items()->create([
             'book_id' => $book->id,
-            'price'   => 50000,
+            'price' => 50000,
         ]);
 
         $payload = [
-            'order_id'           => $order->id,
+            'order_id' => $order->id,
             'transaction_status' => 'settlement',
-            'payment_type'       => 'bank_transfer',
+            'gross_amount' => '50000.00',
+            'status_code' => '200',
+            'payment_type' => 'bank_transfer',
         ];
 
-        $job = new \App\Jobs\ProcessMidtransWebhook($payload);
+        $job = new ProcessMidtransWebhook($payload);
         $job->handle();
 
+        $this->artisan('payments:dispatch-events')->assertSuccessful();
         Event::assertDispatched(OrderPaidEvent::class, function ($e) use ($order) {
             return $e->order->id === $order->id;
         });
@@ -63,11 +68,11 @@ class PurchaseNotificationTest extends TestCase
 
         $user = User::factory()->create();
         $book = Book::create([
-            'title'        => 'Free Book',
-            'author'       => 'QA Author',
-            'description'  => 'Test description',
-            'price'        => 0,
-            'file_path'    => 'dummy.pdf',
+            'title' => 'Free Book',
+            'author' => 'QA Author',
+            'description' => 'Test description',
+            'price' => 0,
+            'file_path' => 'dummy.pdf',
             'is_published' => true,
         ]);
 
@@ -77,6 +82,7 @@ class PurchaseNotificationTest extends TestCase
 
         $response->assertRedirect(route('my-library'));
 
+        $this->artisan('payments:dispatch-events')->assertSuccessful();
         Event::assertDispatched(OrderPaidEvent::class);
     }
 
@@ -86,32 +92,32 @@ class PurchaseNotificationTest extends TestCase
 
         $user = User::factory()->create(['email' => 'buyer@example.com']);
         $book = Book::create([
-            'title'        => 'Test Book',
-            'author'       => 'QA Author',
-            'description'  => 'Test description',
-            'price'        => 50000,
-            'file_path'    => 'dummy.pdf',
+            'title' => 'Test Book',
+            'author' => 'QA Author',
+            'description' => 'Test description',
+            'price' => 50000,
+            'file_path' => 'dummy.pdf',
             'is_published' => true,
         ]);
 
         $order = Order::create([
-            'id'           => 'ORD-MAIL-123',
-            'user_id'      => $user->id,
+            'id' => 'ORD-MAIL-123',
+            'user_id' => $user->id,
             'gross_amount' => 50000,
-            'status'       => 'success',
+            'status' => 'success',
             'payment_type' => 'bank_transfer',
         ]);
 
         $order->items()->create([
             'book_id' => $book->id,
-            'price'   => 50000,
+            'price' => 50000,
         ]);
 
         $event = new OrderPaidEvent($order);
-        $listener = new \App\Listeners\SendPurchaseConfirmationListener();
+        $listener = new SendPurchaseConfirmationListener;
         $listener->handle($event);
 
-        Mail::assertSent(PurchaseConfirmationMail::class, function ($mail) use ($order) {
+        Mail::assertSent(PurchaseConfirmationMail::class, function ($mail) {
             return $mail->hasTo('buyer@example.com');
         });
     }

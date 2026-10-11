@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnalyticsEvent;
 use App\Models\Category;
 use App\Models\LibraryItem;
 use App\Services\AnalyticsRecorder;
@@ -73,7 +72,7 @@ class LibraryCatalogController extends Controller
     public function show(Request $request, LibraryItem $libraryItem, LibraryAccessService $access, AnalyticsRecorder $analytics)
     {
         abort_unless($libraryItem->status === 'published', 404);
-        $libraryItem->load(['creators', 'categories', 'files', 'editions', 'parent', 'children' => fn($q) => $q->published()]);
+        $libraryItem->load(['creators', 'categories', 'files', 'editions', 'parent', 'children' => fn ($q) => $q->published()]);
         $analytics->record('detail_view', $request, $libraryItem);
 
         return view('library.show', ['item' => $libraryItem, 'actions' => $access->actions($libraryItem, $request->user())]);
@@ -81,12 +80,14 @@ class LibraryCatalogController extends Controller
 
     public function read(Request $request, LibraryItem $libraryItem, LibraryAccessService $access, AnalyticsRecorder $analytics)
     {
+        abort_unless($libraryItem->status === 'published', 404);
         if (! $access->canRead($libraryItem, $request->user())) {
             return $request->user() ? abort(403) : redirect()->guest(route('login'));
         }
 
         if ($libraryItem->access_policy === 'external') {
             $analytics->record('external_open', $request, $libraryItem);
+
             return redirect()->away($this->safeExternalUrl($libraryItem->source_url));
         }
 
@@ -94,6 +95,7 @@ class LibraryCatalogController extends Controller
         abort_unless($file, 404, 'Berkas publikasi belum tersedia.');
         if ($file->external_url) {
             $analytics->record('external_open', $request, $libraryItem);
+
             return redirect()->away($this->safeExternalUrl($file->external_url));
         }
 
@@ -104,29 +106,36 @@ class LibraryCatalogController extends Controller
             'Content-Type' => $file->mime_type ?: 'application/pdf',
             'Content-Disposition' => 'inline; filename="'.basename($file->file_path).'"',
             'X-Content-Type-Options' => 'nosniff',
-        ]);
+            'Cache-Control' => 'private, no-store',
+        ])->setPrivate();
     }
 
     public function download(Request $request, LibraryItem $libraryItem, LibraryAccessService $access, AnalyticsRecorder $analytics)
     {
+        abort_unless($libraryItem->status === 'published', 404);
         abort_unless($access->canDownload($libraryItem, $request->user()), 403);
         $file = $libraryItem->files()->where('download_allowed', true)->orderByDesc('is_primary')->firstOrFail();
-        if ($file->external_url) return redirect()->away($this->safeExternalUrl($file->external_url));
+        if ($file->external_url) {
+            return redirect()->away($this->safeExternalUrl($file->external_url));
+        }
         abort_unless($file->file_path && Storage::disk('local')->exists($file->file_path), 404);
         $analytics->record('download', $request, $libraryItem);
 
-        return Storage::disk('local')->download($file->file_path, basename($file->file_path), ['X-Content-Type-Options' => 'nosniff']);
+        return Storage::disk('local')->download($file->file_path, basename($file->file_path), ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store']);
     }
 
     public function trackClick(Request $request, LibraryItem $libraryItem, AnalyticsRecorder $analytics)
     {
+        abort_unless($libraryItem->status === 'published', 404);
         $analytics->record('search_result_click', $request, $libraryItem, ['search_term' => $request->input('q')]);
+
         return redirect()->route('library.show', $libraryItem);
     }
 
     private function safeExternalUrl(?string $url): string
     {
         abort_unless($url && in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true), 422, 'URL sumber tidak valid.');
+
         return $url;
     }
 }

@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-11",
+  "base_commit": "44053817e821d22b0426cc7fa5e5fc77425912ae",
+  "php": "8.2.34",
+  "mariadb": "11.8.6",
+  "sqlite": {
+    "passed": 177,
+    "skipped": 4,
+    "assertions": 580
+  },
+  "mariadb_suite": {
+    "passed": 181,
+    "skipped": 0,
+    "assertions": 621,
+    "actual_multi_process_concurrency_tests": 4
+  },
+  "scanner_unit_tests": 4,
+  "composer_advisories": 0,
+  "npm_vulnerabilities": 0,
+  "php_lint_and_pint_changed_files": 59,
+  "browser_checks": 34,
+  "browser_viewports": [
+    1440,
+    390
+  ],
+  "runtime_checks": {
+    "config:cache": "PASS",
+    "route:cache": "PASS",
+    "view:cache": "PASS",
+    "migrate:status": "PASS",
+    "schedule:list": "PASS",
+    "payments:dispatch-events": "PASS",
+    "route_count": 108
+  },
+  "production_accessed": false,
+  "production_changes": false,
+  "default_feature_flags": {
+    "midtrans": false,
+    "royalty": false,
+    "payout": false,
+    "author_kyc": false
+  },
+  "remote_ci_status": "pending; see PR checks",
+  "limitations": [
+    "No live payment/SMTP integration",
+    "Exact production runtime/schema rehearsal pending",
+    "History exposure and admin credential rotation remain manual gates"
+  ]
+}

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DomainException;
 use Illuminate\Database\Eloquent\Model;
 
 class RoyaltyLedger extends Model
@@ -24,6 +25,17 @@ class RoyaltyLedger extends Model
         'author_earning' => 'decimal:2',
         'platform_earning' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::updating(fn () => throw new DomainException('Ledger pendapatan tidak dapat diubah.'));
+        static::deleting(fn () => throw new DomainException('Ledger pendapatan tidak dapat dihapus.'));
+    }
+
+    public function allocations()
+    {
+        return $this->hasMany(PayoutAllocation::class);
+    }
 
     public function author()
     {
