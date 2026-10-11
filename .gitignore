@@ -17,3 +17,24 @@ vendor/
 
 *.sql
 .phpunit.result.cache
+
+# Database exports, account/session data and deployment credentials stay private.
+*.sql.*
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+*.p12
+*.pfx
+backups/
+private-evidence/
+public/hot
+storage/app/**
+!storage/app/**/
+!storage/app/**/.gitignore
+
+# Generated Python caches
+__pycache__/
+*.py[cod]
