@@ -1,0 +1,206 @@
+[
+  {
+    "viewport": "desktop",
+    "path": "/",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "desktop",
+    "path": "/library",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "desktop",
+    "path": "/library/smoke-publication",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "desktop",
+    "path": "/login",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "desktop",
+    "path": "/register",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "desktop",
+    "role": "reader",
+    "path": "/my-library",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "reader",
+    "path": "/my-orders",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "reader",
+    "path": "/profile",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "reader",
+    "path": "/admin/library",
+    "http": 403
+  },
+  {
+    "viewport": "desktop",
+    "role": "author",
+    "path": "/author/dashboard",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "author",
+    "path": "/author/submissions",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "author",
+    "path": "/author/books",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "admin",
+    "path": "/admin/library",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "admin",
+    "path": "/admin/payments",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "admin",
+    "path": "/admin/users",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "admin",
+    "path": "/admin/reports",
+    "http": 200
+  },
+  {
+    "viewport": "desktop",
+    "role": "admin",
+    "path": "/admin/curation",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "path": "/",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "mobile",
+    "path": "/library",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "mobile",
+    "path": "/library/smoke-publication",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "mobile",
+    "path": "/login",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "mobile",
+    "path": "/register",
+    "http": 200,
+    "overflow": false
+  },
+  {
+    "viewport": "mobile",
+    "role": "reader",
+    "path": "/my-library",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "reader",
+    "path": "/my-orders",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "reader",
+    "path": "/profile",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "reader",
+    "path": "/admin/library",
+    "http": 403
+  },
+  {
+    "viewport": "mobile",
+    "role": "author",
+    "path": "/author/dashboard",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "author",
+    "path": "/author/submissions",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "author",
+    "path": "/author/books",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "admin",
+    "path": "/admin/library",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "admin",
+    "path": "/admin/payments",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "admin",
+    "path": "/admin/users",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "admin",
+    "path": "/admin/reports",
+    "http": 200
+  },
+  {
+    "viewport": "mobile",
+    "role": "admin",
+    "path": "/admin/curation",
+    "http": 200
+  }
+]

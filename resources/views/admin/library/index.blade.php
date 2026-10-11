@@ -8,15 +8,15 @@
 
     <!-- Filters/Search (Visual representation of controls) -->
     <div class="bg-surface border border-border rounded-xl p-4 mb-6 flex flex-wrap gap-4">
-        <form method="GET" action="{{ route('admin.library.index') }}" class="flex-1 min-w-[200px] flex gap-2">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul, penulis, ISBN..." class="flex-1 bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm">
-            <select name="type" class="bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm w-32">
+        <form method="GET" action="{{ route('admin.library.index') }}" class="w-full min-w-0 flex flex-col sm:flex-row sm:flex-wrap gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul, penulis, ISBN..." class="min-w-0 flex-1 bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm">
+            <select name="type" class="bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm w-full sm:w-32">
                 <option value="">Semua Tipe</option>
                 @foreach(config('library.types', ['book','journal','journal_issue','journal_article','article','proceeding','report','module','monograph','other']) as $t)
                     <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ App\Models\LibraryItem::getLocalizedType($t) }}</option>
                 @endforeach
             </select>
-            <select name="status" class="bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm w-32">
+            <select name="status" class="bg-background border border-border text-text-primary rounded-lg px-4 py-2 focus:ring-primary focus:border-primary text-sm w-full sm:w-32">
                 <option value="">Semua Status</option>
                 <option value="published" {{ request('status') === 'published' ? 'selected' : '' }}>Terbit</option>
                 <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
