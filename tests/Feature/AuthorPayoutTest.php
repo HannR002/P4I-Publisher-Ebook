@@ -3,13 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\Author;
-use App\Models\Book;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayoutRequest;
 use App\Models\RoyaltyLedger;
 use App\Models\User;
+use App\Services\RoyaltyBalanceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AuthorPayoutTest extends TestCase
@@ -17,7 +18,9 @@ class AuthorPayoutTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $authorUser;
+
     protected $authorProfile;
 
     protected function setUp(): void
@@ -29,7 +32,7 @@ class AuthorPayoutTest extends TestCase
         ]);
 
         $this->authorUser = User::factory()->create();
-        
+
         $this->authorProfile = Author::create([
             'user_id' => $this->authorUser->id,
             'pen_name' => 'Penulis Cerdas',
@@ -38,7 +41,7 @@ class AuthorPayoutTest extends TestCase
             'bank_account' => '1234567890',
             'bank_holder_name' => 'Penulis Cerdas Asli',
             'id_card_number' => '3201234567890001',
-            'id_card_path' => 'private/kyc/test.jpg'
+            'id_card_path' => 'private/kyc/test.jpg',
         ]);
 
         $book = clone $this->authorProfile->books()->create([
@@ -81,7 +84,8 @@ class AuthorPayoutTest extends TestCase
     public function test_author_cannot_withdraw_below_minimum()
     {
         $response = $this->actingAs($this->authorUser)->post(route('author.payouts.store'), [
-            'amount' => 50000
+            'idempotency_key' => (string) Str::uuid(),
+            'amount' => 50000,
         ]);
 
         $response->assertSessionHasErrors(['amount']);
@@ -92,7 +96,8 @@ class AuthorPayoutTest extends TestCase
     {
         // Available is 3 * 70,000 = 210,000
         $response = $this->actingAs($this->authorUser)->post(route('author.payouts.store'), [
-            'amount' => 300000
+            'idempotency_key' => (string) Str::uuid(),
+            'amount' => 300000,
         ]);
 
         $response->assertSessionHasErrors(['amount']);
@@ -103,38 +108,35 @@ class AuthorPayoutTest extends TestCase
     {
         // Withdraw exactly 140000 (2 ledgers)
         $response = $this->actingAs($this->authorUser)->post(route('author.payouts.store'), [
-            'amount' => 140000
+            'idempotency_key' => (string) Str::uuid(),
+            'amount' => 140000,
         ]);
 
         $response->assertSessionHasNoErrors();
-        
+
         $payout = PayoutRequest::first();
         $this->assertNotNull($payout);
         $this->assertEquals(140000, $payout->amount);
         $this->assertEquals('Bank Mandiri', $payout->bank_name_snapshot);
-        
-        $pendingLedgers = RoyaltyLedger::where('status', 'pending')->get();
-        $this->assertEquals(2, $pendingLedgers->count());
-        foreach ($pendingLedgers as $ledger) {
-            $this->assertEquals($payout->id, $ledger->payout_request_id);
-        }
 
-        $availableLedgers = RoyaltyLedger::where('status', 'available')->count();
-        $this->assertEquals(1, $availableLedgers);
+        $this->assertCount(2, $payout->allocations);
+        $this->assertSame('70000.00', $this->authorProfile->fresh()->available_balance);
+        $this->assertEquals(3, RoyaltyLedger::where('status', 'available')->count());
     }
 
     public function test_admin_can_reject_payout()
     {
         // Create request
         $this->actingAs($this->authorUser)->post(route('author.payouts.store'), [
-            'amount' => 140000
+            'idempotency_key' => (string) Str::uuid(),
+            'amount' => 140000,
         ]);
 
         $payout = PayoutRequest::first();
 
         // Admin rejects
         $response = $this->actingAs($this->adminUser)->post(route('admin.payouts.reject', $payout), [
-            'admin_notes' => 'Nomor rekening salah'
+            'admin_notes' => 'Nomor rekening salah',
         ]);
 
         $payout->refresh();
@@ -151,14 +153,15 @@ class AuthorPayoutTest extends TestCase
     {
         // Create request
         $this->actingAs($this->authorUser)->post(route('author.payouts.store'), [
-            'amount' => 140000
+            'idempotency_key' => (string) Str::uuid(),
+            'amount' => 140000,
         ]);
 
         $payout = PayoutRequest::first();
 
         // Admin completes
         $response = $this->actingAs($this->adminUser)->post(route('admin.payouts.complete', $payout), [
-            'reference_number' => 'REF-999-XYZ'
+            'reference_number' => 'REF-999-XYZ',
         ]);
 
         $payout->refresh();
@@ -166,8 +169,8 @@ class AuthorPayoutTest extends TestCase
         $this->assertEquals('REF-999-XYZ', $payout->reference_number);
 
         // Ledgers updated to withdrawn
-        $this->assertEquals(2, RoyaltyLedger::where('status', 'withdrawn')->count());
-        $this->assertEquals(1, RoyaltyLedger::where('status', 'available')->count());
+        $this->assertSame('140000.00', app(RoyaltyBalanceService::class)->balances($this->authorProfile->id)['withdrawn']);
+        $this->assertEquals(3, RoyaltyLedger::where('status', 'available')->count());
     }
 
     public function test_unverified_author_cannot_access_payouts()

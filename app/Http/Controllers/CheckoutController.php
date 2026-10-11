@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Models\Book;
 use App\Models\BookLicense;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\OrderIdGenerator;
+use App\Services\OrderPaidOutbox;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Midtrans\Config as MidtransConfig;
 use Midtrans\Snap;
 
@@ -22,10 +24,10 @@ class CheckoutController extends Controller
         }
 
         // Boot Midtrans config from our config/midtrans.php
-        MidtransConfig::$serverKey   = config('midtrans.server_key');
+        MidtransConfig::$serverKey = config('midtrans.server_key');
         MidtransConfig::$isProduction = config('midtrans.is_production');
-        MidtransConfig::$isSanitized  = config('midtrans.is_sanitized');
-        MidtransConfig::$is3ds        = config('midtrans.is_3ds');
+        MidtransConfig::$isSanitized = config('midtrans.is_sanitized');
+        MidtransConfig::$is3ds = config('midtrans.is_3ds');
     }
 
     /**
@@ -41,15 +43,15 @@ class CheckoutController extends Controller
         abort_unless(config('features.midtrans'), 404, 'Checkout Midtrans tidak aktif. Gunakan pembayaran manual.');
 
         $request->validate([
-            'book_ids'   => 'required|array|min:1',
-            'book_ids.*' => 'integer|exists:books,id',
+            'book_ids' => 'required|array|min:1',
+            'book_ids.*' => 'integer|distinct|exists:books,id',
         ]);
 
-        $user  = $request->user();
+        $user = $request->user();
         $books = Book::whereIn('id', $request->book_ids)
-                     ->where('is_published', true)
-                     ->get()
-                     ->keyBy('id');
+            ->where('is_published', true)
+            ->get()
+            ->keyBy('id');
 
         if ($books->isEmpty()) {
             return back()->withErrors(['book_ids' => 'No valid books selected.']);
@@ -62,8 +64,9 @@ class CheckoutController extends Controller
             ->pluck('book_id')
             ->toArray();
 
-        if (!empty($alreadyOwnedIds)) {
+        if (! empty($alreadyOwnedIds)) {
             $ownedTitles = $books->only($alreadyOwnedIds)->pluck('title')->join(', ');
+
             return back()->withErrors([
                 'book_ids' => "Anda sudah memiliki lisensi aktif untuk: {$ownedTitles}.",
             ]);
@@ -72,7 +75,7 @@ class CheckoutController extends Controller
 
         // Calculate gross_amount from LIVE price at checkout time
         $grossAmount = $books->sum('price');
-        $orderId     = OrderIdGenerator::generate();
+        $orderId = OrderIdGenerator::generate();
 
         // ── BVA-02: FREE BOOK BYPASS (grossAmount == 0) ──────────────────────
         // If total is Rp 0, bypass Midtrans entirely.
@@ -81,40 +84,40 @@ class CheckoutController extends Controller
             DB::beginTransaction();
             try {
                 $order = Order::create([
-                    'id'           => $orderId,
-                    'user_id'      => $user->id,
+                    'id' => $orderId,
+                    'user_id' => $user->id,
                     'gross_amount' => 0,
-                    'status'       => 'success',
+                    'status' => 'success',
                     'payment_type' => 'free',
                 ]);
 
                 foreach ($books as $book) {
                     OrderItem::create([
                         'order_id' => $order->id,
-                        'book_id'  => $book->id,
-                        'price'    => 0,
+                        'book_id' => $book->id,
+                        'price' => 0,
                     ]);
 
                     BookLicense::firstOrCreate(
                         ['user_id' => $user->id, 'book_id' => $book->id],
                         [
-                            'order_id'    => $order->id,
+                            'order_id' => $order->id,
                             'license_key' => (string) Str::uuid(),
-                            'status'      => 'active',
+                            'status' => 'active',
                         ]
                     );
                 }
 
+                app(OrderPaidOutbox::class)->record($order);
                 DB::commit();
-
-                event(new \App\Events\OrderPaidEvent($order));
 
                 return redirect()->route('my-library')
                     ->with('success', 'Buku gratis berhasil ditambahkan ke perpustakaan Anda!');
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->withErrors(['checkout' => 'Gagal memproses buku gratis: ' . $e->getMessage()]);
+
+                return back()->withErrors(['checkout' => 'Gagal memproses buku gratis. Silakan coba lagi.']);
             }
         }
         // ────────────────────────────────────────────────────────────────────
@@ -124,39 +127,39 @@ class CheckoutController extends Controller
         try {
             // Create Order
             $order = Order::create([
-                'id'           => $orderId,
-                'user_id'      => $user->id,
+                'id' => $orderId,
+                'user_id' => $user->id,
                 'gross_amount' => $grossAmount,
-                'status'       => 'pending',
+                'status' => 'pending',
             ]);
 
             // Create OrderItems — lock price historically at this moment
             foreach ($books as $book) {
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'book_id'  => $book->id,
-                    'price'    => $book->price,
+                    'book_id' => $book->id,
+                    'price' => $book->price,
                 ]);
             }
 
             // Build Midtrans item_details
-            $itemDetails = $books->map(fn($book) => [
-                'id'       => (string) $book->id,
-                'price'    => (int) $book->price,
+            $itemDetails = $books->map(fn ($book) => [
+                'id' => (string) $book->id,
+                'price' => (int) $book->price,
                 'quantity' => 1,
-                'name'     => $book->title,
+                'name' => $book->title,
             ])->values()->toArray();
 
             // Build Midtrans payload
             $params = [
                 'transaction_details' => [
-                    'order_id'     => $orderId,
+                    'order_id' => $orderId,
                     'gross_amount' => (int) $grossAmount,
                 ],
                 'item_details' => $itemDetails,
                 'customer_details' => [
                     'first_name' => $user->name,
-                    'email'      => $user->email,
+                    'email' => $user->email,
                 ],
             ];
 
@@ -172,7 +175,8 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['checkout' => 'Checkout failed: ' . $e->getMessage()]);
+
+            return back()->withErrors(['checkout' => 'Checkout gagal. Silakan coba lagi.']);
         }
         // ────────────────────────────────────────────────────────────────────
     }
@@ -187,9 +191,9 @@ class CheckoutController extends Controller
         abort_unless(config('features.midtrans'), 404, 'Checkout Midtrans tidak aktif.');
 
         $order = Order::with('items.book')
-                      ->where('id', $orderId)
-                      ->where('user_id', $request->user()->id)
-                      ->firstOrFail();
+            ->where('id', $orderId)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
 
         // TC-07 FIX: Redirect away from payment page if order already settled.
         if ($order->status === 'success') {
@@ -199,28 +203,28 @@ class CheckoutController extends Controller
 
         if (in_array($order->status, ['failed', 'expired'])) {
             return redirect()->route('my-orders')
-                ->with('warning', 'Pesanan ini sudah ' . ($order->status === 'failed' ? 'gagal' : 'kadaluarsa') . '.');
+                ->with('warning', 'Pesanan ini sudah '.($order->status === 'failed' ? 'gagal' : 'kadaluarsa').'.');
         }
 
         // TC-10 FIX: Auto-renew Snap Token if it's older than 50 minutes and status is pending
         if ($order->status === 'pending' && $order->updated_at->diffInMinutes(now()) >= 50) {
             try {
-                $itemDetails = $order->items->map(fn($item) => [
-                    'id'       => (string) $item->book_id,
-                    'price'    => (int) $item->price,
+                $itemDetails = $order->items->map(fn ($item) => [
+                    'id' => (string) $item->book_id,
+                    'price' => (int) $item->price,
                     'quantity' => 1,
-                    'name'     => $item->book->title,
+                    'name' => $item->book->title,
                 ])->values()->toArray();
 
                 $params = [
                     'transaction_details' => [
-                        'order_id'     => $order->id,
+                        'order_id' => $order->id,
                         'gross_amount' => (int) $order->gross_amount,
                     ],
                     'item_details' => $itemDetails,
                     'customer_details' => [
                         'first_name' => $request->user()->name,
-                        'email'      => $request->user()->email,
+                        'email' => $request->user()->email,
                     ],
                 ];
 
@@ -229,7 +233,8 @@ class CheckoutController extends Controller
                 // updated_at is automatically updated on save()
                 $order->save();
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('[Checkout] Failed to renew snap token', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+                Log::error('[Checkout] Failed to renew snap token', ['order_id' => $order->id, 'exception_class' => $e::class]);
+
                 return redirect()->route('my-orders')->with('warning', 'Gagal memperbarui sesi pembayaran. Silakan coba lagi nanti.');
             }
         }
@@ -245,9 +250,10 @@ class CheckoutController extends Controller
         $order = null;
         if ($request->has('order_id')) {
             $order = Order::where('id', $request->order_id)
-                          ->where('user_id', $request->user()->id)
-                          ->first();
+                ->where('user_id', $request->user()->id)
+                ->first();
         }
+
         return view('checkout.success', compact('order'));
     }
 

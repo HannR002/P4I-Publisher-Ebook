@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookLicense;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class DrmController extends Controller
 {
@@ -15,34 +18,34 @@ class DrmController extends Controller
     {
         // BUG-01 FIXED: No fallback to ID 1. Unauthenticated access = 401 immediately.
         $userId = auth()->id();
-        if (!$userId) {
+        if (! $userId) {
             abort(401, 'Unauthenticated. Please log in to access this content.');
         }
 
-        $license = \App\Models\BookLicense::with('book')
+        $license = BookLicense::with('book')
             ->where('user_id', $userId)
             ->where('book_id', $bookId)
             ->where('status', 'active')
             ->first();
 
-        if (!$license) {
+        if (! $license) {
             abort(403, 'No active license found for this book.');
         }
 
-        $streamUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        $streamUrl = URL::temporarySignedRoute(
             'drm.stream',
             now()->addMinutes(15),
             [
                 'license_key' => $license->license_key,
-                'ip' => $request->ip() // BUG-06 FIX: Bind URL to specific IP
+                'ip' => $request->ip(), // BUG-06 FIX: Bind URL to specific IP
             ]
         );
 
         return view('reader', [
-            'streamUrl'    => $streamUrl,
-            'licenseKey'   => $license->license_key,
-            'userEmail'    => auth()->user()->email,
-            'userIp'       => $request->ip(),
+            'streamUrl' => $streamUrl,
+            'licenseKey' => $license->license_key,
+            'userEmail' => auth()->user()->email,
+            'userIp' => $request->ip(),
             'lastReadPage' => $license->last_read_page,
         ]);
     }
@@ -54,12 +57,14 @@ class DrmController extends Controller
             'page' => 'required|integer|min:1',
         ]);
 
-        $license = \App\Models\BookLicense::where('license_key', $request->license_key)
+        $license = BookLicense::where('license_key', $request->license_key)
             ->where('user_id', auth()->id())
+            ->where('status', 'active')
             ->first();
 
         if ($license) {
             $license->update(['last_read_page' => $request->page]);
+
             return response()->json(['success' => true]);
         }
 
@@ -73,7 +78,7 @@ class DrmController extends Controller
      */
     public function streamPdf(Request $request, $license_key)
     {
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             abort(401, 'Invalid or expired signature.');
         }
 
@@ -82,20 +87,21 @@ class DrmController extends Controller
             abort(403, 'IP Address mismatch. URL hijacking detected.');
         }
 
-        $license = \App\Models\BookLicense::with('book')
+        $license = BookLicense::with('book')
             ->where('license_key', $license_key)
+            ->where('user_id', $request->user()->id)
             ->where('status', 'active')
             ->firstOrFail();
 
         $book = $license->book;
 
-        if (!$book || !$book->file_path) {
+        if (! $book || ! $book->file_path) {
             abort(404, 'Book file not found.');
         }
 
-        $path = \Illuminate\Support\Facades\Storage::disk('local')->path($book->file_path);
+        $path = Storage::disk('local')->path($book->file_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404, 'File not found on disk.');
         }
 
@@ -113,13 +119,14 @@ class DrmController extends Controller
             },
             200,
             [
-                'Content-Type'        => 'application/pdf',
-                'Content-Length'      => $fileSize,
-                'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
-                'Cache-Control'       => 'no-cache, no-store, must-revalidate',
-                'Pragma'              => 'no-cache',
-                'Expires'             => '0',
-                'X-Accel-Buffering'   => 'no', // Disable nginx buffering
+                'Content-Type' => 'application/pdf',
+                'X-Content-Type-Options' => 'nosniff',
+                'Content-Length' => $fileSize,
+                'Content-Disposition' => 'inline; filename="'.basename($path).'"',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+                'X-Accel-Buffering' => 'no', // Disable nginx buffering
             ]
         );
     }

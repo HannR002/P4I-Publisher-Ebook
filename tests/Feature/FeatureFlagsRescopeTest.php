@@ -10,11 +10,13 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PayoutRequest;
 use App\Models\User;
+use App\Services\PayoutService;
+use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
-use DomainException;
 
 class FeatureFlagsRescopeTest extends TestCase
 {
@@ -59,15 +61,19 @@ class FeatureFlagsRescopeTest extends TestCase
         $user = User::factory()->create();
         $author = Author::create(['user_id' => $user->id, 'pen_name' => 'Penulis', 'id_card_number' => '', 'kyc_status' => 'verified']);
         $payout = new PayoutRequest(['id' => '01TESTPAYOUT', 'author_id' => $author->id, 'amount' => 100000, 'status' => 'requested']);
-        $service = app(\App\Services\PayoutService::class);
+        $service = app(PayoutService::class);
         $blocked = 0;
 
         foreach ([
-            fn () => $service->requestPayout($author, 100000),
+            fn () => $service->requestPayout($author, 100000, (string) Str::uuid()),
             fn () => $service->completePayout($payout, 'REF', null, $user->id),
             fn () => $service->rejectPayout($payout, 'disabled', $user->id),
         ] as $operation) {
-            try { $operation(); } catch (DomainException) { $blocked++; }
+            try {
+                $operation();
+            } catch (DomainException) {
+                $blocked++;
+            }
         }
 
         $this->assertSame(3, $blocked);

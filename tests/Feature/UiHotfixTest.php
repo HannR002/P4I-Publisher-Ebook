@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use App\Models\LibraryItem;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class UiHotfixTest extends TestCase
 {
@@ -52,7 +55,7 @@ class UiHotfixTest extends TestCase
 
     public function test_account_menu_surface()
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $response = $this->actingAs($user)->get('/library');
         $response->assertStatus(200);
 
@@ -73,9 +76,7 @@ class UiHotfixTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider guestAuthPages
-     */
+    #[DataProvider('guestAuthPages')]
     public function test_guest_auth_pages_are_light_only(string $uri)
     {
         $response = $this->get($uri);
@@ -126,9 +127,9 @@ class UiHotfixTest extends TestCase
 
     public function test_localized_book_type_label()
     {
-        $this->assertSame('Buku', \App\Models\LibraryItem::getLocalizedType('book'));
-        $this->assertSame('Jurnal', \App\Models\LibraryItem::getLocalizedType('journal'));
-        $this->assertSame('Artikel', \App\Models\LibraryItem::getLocalizedType('article'));
+        $this->assertSame('Buku', LibraryItem::getLocalizedType('book'));
+        $this->assertSame('Jurnal', LibraryItem::getLocalizedType('journal'));
+        $this->assertSame('Artikel', LibraryItem::getLocalizedType('article'));
     }
 
     public function test_public_navigation_contains_main_site_link()

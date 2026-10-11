@@ -34,12 +34,10 @@ class AdminPayoutController extends Controller
     public function show(PayoutRequest $payout)
     {
         $payout->load(['author.user', 'processor']);
-        
-        $ledgers = \App\Models\RoyaltyLedger::with(['orderItem', 'book'])
-            ->where('payout_request_id', $payout->id)
-            ->get();
 
-        return view('admin.payouts.show', compact('payout', 'ledgers'));
+        $allocations = $payout->allocations()->with(['royaltyLedger.orderItem', 'royaltyLedger.book'])->get();
+
+        return view('admin.payouts.show', compact('payout', 'allocations'));
     }
 
     /**
@@ -57,7 +55,20 @@ class AdminPayoutController extends Controller
             $proofPath = $request->file('transfer_proof')->store('private/transfer_proofs', 'local');
         }
 
-        $payoutService->completePayout($payout, $request->reference_number, $proofPath, $request->user()->id);
+        try {
+            $payoutService->completePayout($payout, $request->reference_number, $proofPath, $request->user()->id);
+        } catch (\DomainException $e) {
+            if ($proofPath) {
+                Storage::disk('local')->delete($proofPath);
+            }
+
+            return back()->withErrors(['payout' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            if ($proofPath) {
+                Storage::disk('local')->delete($proofPath);
+            }
+            throw $e;
+        }
 
         return back()->with('success', 'Penarikan dana berhasil diselesaikan.');
     }
@@ -68,10 +79,14 @@ class AdminPayoutController extends Controller
     public function reject(Request $request, PayoutRequest $payout, PayoutService $payoutService)
     {
         $request->validate([
-            'admin_notes' => ['required', 'string', 'min:5'],
+            'admin_notes' => ['required', 'string', 'min:5', 'max:1000'],
         ]);
 
-        $payoutService->rejectPayout($payout, $request->admin_notes, $request->user()->id);
+        try {
+            $payoutService->rejectPayout($payout, $request->admin_notes, $request->user()->id);
+        } catch (\DomainException $e) {
+            return back()->withErrors(['payout' => $e->getMessage()]);
+        }
 
         return back()->with('success', 'Penarikan dana berhasil ditolak.');
     }

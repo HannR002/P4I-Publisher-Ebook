@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -20,7 +21,8 @@ class Order extends Model
 
     protected $casts = [
         'gross_amount' => 'decimal:2',
-        'snap_token'   => 'encrypted',
+        'confirmation_sent_at' => 'datetime',
+        'snap_token' => 'encrypted',
     ];
 
     public function user()

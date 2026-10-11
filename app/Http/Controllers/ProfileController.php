@@ -48,6 +48,10 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if ($user->orders()->exists() || $user->manualOrders()->exists() || $user->authorProfile()->exists() || $user->is_admin) {
+            return back()->withErrors(['account' => 'Akun dengan riwayat transaksi, profil penulis, atau akses admin memerlukan penutupan akun melalui administrator.'], 'userDeletion');
+        }
+
         Auth::logout();
 
         $user->delete();

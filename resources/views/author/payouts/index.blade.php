@@ -97,6 +97,7 @@
 
                         <form action="{{ route('author.payouts.store') }}" method="POST" class="flex flex-col sm:flex-row items-end gap-4" onsubmit="return confirm('Apakah Anda yakin ingin menarik dana sebesar Rp ' + document.getElementById('amount').value + '?')">
                             @csrf
+                                <input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) \Illuminate\Support\Str::uuid()) }}">
                             <div class="flex-1 w-full">
                                 <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Nominal Penarikan</label>
                                 <div class="flex rounded-md shadow-sm">
